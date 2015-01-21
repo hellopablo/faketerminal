@@ -1,0 +1,19 @@
+{
+    "name": "faketerminal",
+    "version": "0.1.0",
+    "main": "dist/faketerminal.min.js",
+    "authors": [
+        "Pablo de la Pena <p@shedcollective.org>"
+    ],
+    "description": "A fake Javascript terminal for your website",
+    "keywords": [
+        "fake",
+        "terminal",
+        "terminal",
+        "javascript"
+    ],
+    "license": "MIT",
+    "dependencies": {
+        "jquery": ">=1.10.2"
+    }
+}
