@@ -41,15 +41,26 @@ Easily extend the basic set of commands which faketerminal responds to by ... [@
 
 ## How to Contribute
 
-Compile faketerminal.js using Grunt.
+I welcome contirbutions to fake terminal. Fork the repo and submit a pull request. Please ensure that faketerminal.js
+compiles and that any relevant documentation is updated before sending the pull request.
 
-Install `grunt-cli` globally.
+### Compiling LESS and JS
+
+I use Grunt to compile everything. Firstly, install `grunt-cli` globally. It's recommended to run the grunt client on a
+per-project basis, so if you have it installed globally, remove it.
 
     npm install -g grunt-cli
 
+Install the dev dependancies
+
+    npm install
+
 Call `grunt` in the project root
 
-    cd /path/to/project
     grunt
 
-Changes made to the LESS and JS will be compiled automatically
+If you wish to start the watcher, you can do so by calling:
+
+    grunt autocompile
+
+All the Less and JS files will be watched for changes, and compiled if necessary.

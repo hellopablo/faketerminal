@@ -57,4 +57,5 @@ module.exports = function(grunt) {
   });
 
   grunt.registerTask('default', ['less', 'uglify:compressed', 'uglify:uncompressed', 'watch']);
+  grunt.registerTask('autocompile', ['watch']);
 };
