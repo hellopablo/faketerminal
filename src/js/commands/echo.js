@@ -1,15 +1,26 @@
-(function($){
+(function($) {
 
-    if(!$.shed){
-        $.shed = new Object();
-    };
+    //  Create namespace if not already created
+    if(!$.fakeTerminal) {
 
-    if(!$.shed.fakeTerminalCommand){
-        $.shed.fakeTerminalCommand = new Object();
-    };
+        $.fakeTerminal = {};
+    }
 
-    $.shed.fakeTerminalCommand.echo = function()
-    {
+    //  Create command namespace if not already created
+    if(!$.fakeTerminal.command) {
+
+        $.fakeTerminal.command = {};
+    }
+
+    // --------------------------------------------------------------------------
+
+    /**
+     * The "echo" command
+     * @param  {Object} instance The instance of fakeTerminal
+     * @return {Object}
+     */
+    $.fakeTerminal.command.echo = function(instance) {
+
         /**
          * To avoid scope issues, use 'base' instead of 'this' to reference
          * this class from internal events and functions.
@@ -19,42 +30,50 @@
 
         // --------------------------------------------------------------------------
 
-        //  field variables
-        base.counter = 0;
-
-        // --------------------------------------------------------------------------
-
         /**
          * Describes the command
          * @return {Object}
          */
-        base.info = function()
-        {
+        base.info = function() {
+
             return {
                 description: 'Writes an argument to the standard output'
-            }
-        }
+            };
+        };
 
         // --------------------------------------------------------------------------
 
         /**
          * This method is called when fake terminal encounters the command which this class represents
-         * @param  {array} arguments An array of arguments passed by the user
-         * @return {array}           An array of lines to render to the screen
+         * @param  {array} userArgs An array of arguments passed by the user
+         * @return {Object}
          */
-        base.execute = function(arguments) {
+        base.execute = function(userArgs) {
 
             var returnVal;
 
             //  Merge all the arguments
-            returnVal = arguments.join(' ');
+            returnVal = userArgs.join(' ');
+            returnVal = $.trim(returnVal);
 
             //  Remove quotes
             returnVal = returnVal.replace(/["']/g, '');
             returnVal = returnVal.replace(/["']/g, '');
 
-            return returnVal;
+            //  Ensure we write *something* to the screen
+            if (returnVal.length === 0) {
+
+                returnVal = ' ';
+            }
+
+            instance.addLine(returnVal);
+
+            return base;
         };
+
+        // --------------------------------------------------------------------------
+
+        return base;
     };
 
 })(jQuery);

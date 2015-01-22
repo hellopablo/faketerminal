@@ -1,15 +1,26 @@
-(function($){
+(function($) {
 
-    if(!$.shed){
-        $.shed = new Object();
-    };
+    //  Create namespace if not already created
+    if(!$.fakeTerminal) {
 
-    if(!$.shed.fakeTerminalCommand){
-        $.shed.fakeTerminalCommand = new Object();
-    };
+        $.fakeTerminal = {};
+    }
 
-    $.shed.fakeTerminalCommand.help = function()
-    {
+    //  Create command namespace if not already created
+    if(!$.fakeTerminal.command) {
+
+        $.fakeTerminal.command = {};
+    }
+
+    // --------------------------------------------------------------------------
+
+    /**
+     * The "help" command
+     * @param  {Object} instance The instance of fakeTerminal
+     * @return {Object}
+     */
+    $.fakeTerminal.command.help = function(instance) {
+
         /**
          * To avoid scope issues, use 'base' instead of 'this' to reference
          * this class from internal events and functions.
@@ -19,42 +30,52 @@
 
         // --------------------------------------------------------------------------
 
-        //  field variables
-        base.counter = 0;
-
-        // --------------------------------------------------------------------------
-
         /**
          * Describes the command
          * @return {Object}
          */
-        base.info = function()
-        {
+        base.info = function() {
+
             return {
                 description: 'Displays information about the available commands'
-            }
-        }
+            };
+        };
 
         // --------------------------------------------------------------------------
 
         /**
          * This method is called when fake terminal encounters the command which this class represents
-         * @param  {array}  arguments An array of arguments passed by the user
-         * @return {array}            An array of lines to render to the screen
+         * @param  {array} userArgs An array of arguments passed by the user
+         * @return {Object}
          */
-        base.execute = function(arguments) {
+        base.execute = function(userArgs) {
 
             var returnVal = [];
+            var commandInfo = {};
+            var temp;
 
-            if (arguments.length === 0) {
+            if (userArgs.length === 0) {
 
                 returnVal.push('The following commands are available, run <span class="ft-comment">help [command]</span> to find out more.');
                 returnVal.push(' ');
 
                 var commandString = '';
-                $.each($.shed.fakeTerminalCommand, function(index, value)
+                $.each($.fakeTerminal.command, function(command, value)
                 {
-                    commandString += index + '    '
+                    var temp = new $.fakeTerminal.command[command](instance);
+
+                    //  Check to see if the command is private
+                    if (typeof(temp.info) == 'function') {
+
+                        commandInfo = temp.info();
+
+                        if (typeof(commandInfo.private) == 'boolean' && commandInfo.private === true){
+
+                            return;
+                        }
+                    }
+
+                    commandString += command + '    ';
                 });
 
                 returnVal.push(commandString);
@@ -62,10 +83,10 @@
 
             } else {
 
-                var command        = arguments[0];
+                var command        = userArgs[0];
                 var isValidCommand = false;
 
-                $.each($.shed.fakeTerminalCommand, function(index, value) {
+                $.each($.fakeTerminal.command, function(index, value) {
 
                     if (index === command) {
 
@@ -73,22 +94,23 @@
                     }
                 });
 
-
                 if (isValidCommand) {
 
+                    temp = new $.fakeTerminal.command[command](instance);
 
-                    var temp = new $.shed.fakeTerminalCommand[command]();
                     if (typeof(temp.info) == 'function') {
 
-                        var info = temp.info();
+                        commandInfo = temp.info();
 
-                        if (typeof(info.description) == 'string') {
+                        console.log(typeof(commandInfo.private));
 
-                            returnVal = [' ', command + ' -- ' + info.description, ' '];
+                        if (typeof(commandInfo.description) === 'string') {
 
-                        } else if (typeof(info.description) == 'array') {
+                            returnVal = [' ', command + ' -- ' + commandInfo.description, ' '];
 
-                            returnVal = info.description;
+                        } else if (typeof(commandInfo.description) === 'object') {
+
+                            returnVal = commandInfo.description;
                         }
                     }
 
@@ -103,8 +125,30 @@
                 }
             }
 
-            return returnVal;
+            //  Write to the terminal
+            for (var i = 0; i < returnVal.length; i++) {
+
+                instance.addLine(returnVal[i]);
+            }
+
+            return base;
         };
+
+        // --------------------------------------------------------------------------
+
+        return base;
+    };
+
+    // --------------------------------------------------------------------------
+
+    /**
+     * The "man" command, an alias of "help"
+     * @return {Object}
+     */
+    $.fakeTerminal.command.man = function() {
+
+        $.fakeTerminal.command.help.apply(this, arguments);
+        return this;
     };
 
 })(jQuery);

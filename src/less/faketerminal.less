@@ -2,25 +2,88 @@
 {
     width: 100%;
     height: 100%;
+    padding: 0;
     display: block;
-    padding: 1em;
     text-align: left;
     font-family: Courier, Monaco, monospace;
-    font-size: 1em;
-    overflow: auto;
+    font-size: 0.9em;
+    position: relative;
 
-    //  Default colouring
-    background: #FFFFFF;
-    color: #000000;
+    > .ft-header
+    {
+        background:#E6E5E5;
+        height: 35px;
+        width:100%;
+        border-top-right-radius: 5px;
+        border-top-left-radius: 5px;
+        position:absolute;
+        top:0;
+        left:0;
+
+        ul.ft-header-buttons
+        {
+            position: relative;
+            top: 12px;
+            padding:0 15px;
+            margin:0;
+
+            li.ft-header-button
+            {
+                padding:0;
+                margin:0;
+                height: 14px;
+                width: 14px;
+                background-color: #CCCCCC;
+                display:block;
+                float:left;
+                margin-right:5px;
+                border-radius: 6px;
+
+                &.ft-header-button-close
+                {
+                    background-color: #D65551;
+                }
+
+                &.ft-header-button-minimise
+                {
+                    background-color: #D8DA51;
+                }
+
+                &.ft-header-button-maximise
+                {
+                    background-color: #62BF4E;
+                }
+            }
+
+            &:after
+            {
+                content: '';
+                display:block;
+                clear:both;
+            }
+        }
+    }
 
     > ul
     {
-        padding: 0;
+        padding: 1em;
         margin: 0;
         list-style: none;
+        position: absolute;
+        top: 35px;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        overflow: auto;
 
-        li
+        //  Default colouring
+        background: #FFFFFF;
+        color: #000000;
+
+        > li
         {
+            word-break: break-word;
+
             //  Default colouring
             .ft-comment
             {
@@ -55,7 +118,8 @@
                     padding-right: 0.75em;
                 }
 
-                .ft-input
+                .ft-input,
+                .ft-request-input
                 {
                     width: 100%;
                     min-height: 1em;
@@ -65,6 +129,24 @@
                     border: none;
                     display: inline-block;
                     outline: 0;
+                }
+
+                .ft-request-input
+                {
+                    display:none;
+                }
+
+                &.ft-request-input
+                {
+                    .ft-request-input
+                    {
+                        display: inline-block;
+                    }
+
+                    .ft-input
+                    {
+                        display: none;
+                    }
                 }
 
                 &:after
