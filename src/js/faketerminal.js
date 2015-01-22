@@ -1,12 +1,20 @@
-(function($){
+(function($) {
 
-    if(!$.shed){
-        $.shed = new Object();
-    };
+    //  Create namespace if not already created
+    if(!$.fakeTerminal) {
+
+        $.fakeTerminal = {};
+    }
+
+    //  Create command namespace if not already created
+    if(!$.fakeTerminal.command) {
+
+        $.fakeTerminal.command = {};
+    }
 
     // --------------------------------------------------------------------------
 
-    $.shed.fakeTerminal = function(el, options){
+    $.fakeTerminal.fakeTerminal = function(el, options) {
 
         /**
          * To avoid scope issues, use 'base' instead of 'this' to reference
@@ -20,7 +28,7 @@
         base.el = el;
 
         // Add a reverse reference to the DOM object
-        base.$el.data("shed.fakeTerminal", base);
+        base.$el.data('fakeTerminal.fakeTerminal', base);
 
         // --------------------------------------------------------------------------
 
@@ -39,13 +47,23 @@
         base.init = function(){
 
             //  Merge the options together
-            base.options = $.extend({},$.shed.fakeTerminal.defaultOptions, options);
+            base.options = $.extend({},$.fakeTerminal.fakeTerminal.defaultOptions, options);
 
             //  Setup the terminal
             base.setup();
 
             //  Look for, and instanciate, commands
             base.registerCommands();
+
+            //  focus the input
+            base.focusInput();
+
+            //  Run any initCommands
+            for (var i = 0; i < base.options.initCommands.length; i++) {
+
+                base.setCommand(base.options.initCommands[i]);
+                base.enterCommand();
+            }
         };
 
         // --------------------------------------------------------------------------
@@ -68,9 +86,20 @@
             base.existing = base.$el.text().split("\n");
 
             //  Create the terminal body
-            var ul,li,prompt,input;
+            var header,headerButtons,headerButton,ul,li,prompt,input,requestInput;
 
-            //  contains all the terminal "lines"
+            //  Is the terminal header
+            header = $('<div>')
+                .addClass('ft-header');
+
+            headerButtons = $('<ul>').addClass('ft-header-buttons');
+
+            headerButton   = [];
+            headerButton[0] = $('<li>').addClass('ft-header-button ft-header-button-close');
+            headerButton[1] = $('<li>').addClass('ft-header-button ft-header-button-minimise');
+            headerButton[2] = $('<li>').addClass('ft-header-button ft-header-button-maximise');
+
+            //  Contains all the terminal "lines"
             ul = $('<ul>');
 
             //  Contains the main prompt
@@ -79,29 +108,42 @@
 
             //  The text shown before the input
             prompt = $('<span>')
-                .addClass('ft-prompt')
-                .text(base.options.hostname + ':~ ' + base.options.username + '$ ')
+                .addClass('ft-prompt');
 
             //  The actual input, i.e., where the user types commands
             input = $('<span>')
                 .addClass('ft-input')
                 .prop('contenteditable', true);
 
+            //  The request Input
+            requestInput = $('<span>')
+                .addClass('ft-request-input')
+                .prop('contenteditable', true);
+
             //  Glue altogether and add to the DOM
             base.$el
             .empty()
+            .append(
+                header.append(
+                        headerButtons
+                        .append(headerButton[0])
+                        .append(headerButton[1])
+                        .append(headerButton[2])
+                )
+            )
             .append(
                 ul.append(
                     li
                     .append(prompt)
                     .append(input)
+                    .append(requestInput)
                 )
             );
 
-            //  Resize the editable area to take up the remaining space
-            input.css('padding-left', prompt.outerWidth());
+            //  Set the prompt's value
+            base.setPrompt();
 
-            //  Bind listener
+            //  Bind listeners
             input.on('keydown', function(e) {
 
                 switch (e.keyCode) {
@@ -115,13 +157,13 @@
                     //  Up arrow
                     case 38:
 
-                        base.browseHistory('UP')
+                        base.browseHistory('UP');
                         break;
 
                     //  Down arrow
                     case 40:
 
-                        base.browseHistory('DOWN')
+                        base.browseHistory('DOWN');
                         break;
                 }
             });
@@ -129,8 +171,31 @@
             //  Add the existing content
             $.each(base.existing, function(index, value){
 
-                base .addLine(value);
+                base.addLine(value);
             });
+        };
+
+        // --------------------------------------------------------------------------
+
+        base.setPrompt = function(host, user) {
+
+            var prompt       = base.$el.find('.ft-command .ft-prompt');
+            var commandInput = base.$el.find('.ft-command .ft-input');
+            var requestInput = base.$el.find('.ft-command .ft-request-input');
+
+            host = (typeof(host) === 'undefined' || $.trim(host).length === 0) ? base.options.hostname : host;
+            user = (typeof(user) === 'undefined' || $.trim(user).length === 0) ? base.options.username : user;
+
+            user = user.toLowerCase().replace(/[^a-z0-9]/g, '');
+
+            var text = host + ':~ ' + user + '$ ';
+
+            prompt.text(text);
+
+            //  Resize the editable area to take up the remaining space
+            commandInput.css('padding-left', prompt.outerWidth());
+            requestInput.css('padding-left', prompt.outerWidth());
+
         };
 
         // --------------------------------------------------------------------------
@@ -141,11 +206,11 @@
          */
         base.registerCommands = function()
         {
-            if (typeof($.shed.fakeTerminalCommand) === 'object') {
+            if (typeof($.fakeTerminal.command) === 'object') {
 
-                $.each($.shed.fakeTerminalCommand, function(index, element)
+                $.each($.fakeTerminal.command, function(index, element)
                 {
-                    base.commands[index] = new element();
+                    base.commands[index] = new element(base);
                 });
             }
         };
@@ -165,7 +230,7 @@
              * commands can colourise things etc)
              */
 
-            var line    = $.parseHTML(line);
+            line        = $.parseHTML(line);
             var output  = '';
             var encoded = '';
 
@@ -183,10 +248,10 @@
                     $(value).html($(value).text().replace(/ /g, '&nbsp;'));
 
                     //  Set the element + encoded text as the line
-                    encoded = $(value).prop('outerHTML')
+                    encoded = $(value).prop('outerHTML');
                 }
 
-                output += encoded
+                output += encoded;
             });
 
             //  Add the line
@@ -194,11 +259,12 @@
             base.$el.find('>ul li.ft-command').before(li);
 
             //  Scroll the terminal window
-            base.$el.scrollTop(base.$el.outerHeight());
+            base.$el.find('>ul').scrollTop(base.$el.find('>ul').outerHeight());
+
 
             //  Return class for chaining
             return base;
-        }
+        };
 
         // --------------------------------------------------------------------------
 
@@ -213,36 +279,30 @@
 
             // --------------------------------------------------------------------------
 
-            var command   = value.split(' ').slice(0,1);
-            var arguments = value.split(' ').slice(1);
-            var lines     = [];
-
-            if (typeof(base.commands[command]) == 'object') {
-
-                lines = base.commands[command].execute(arguments);
-
-            } else {
-
-                lines = ['command not found: "' + command + '"'];
-            }
+            //  Clear the input
+            input.empty();
 
             // --------------------------------------------------------------------------
 
-            //  Wrote to the faketerminal screen
-            if (typeof(lines) === 'string') {
+            var command,userArgs;
 
-                base.addLine(lines);
+            command  = value.split(' ').slice(0,1);
+            command  = $.trim(command);
+            userArgs = value.split(' ').slice(1);
 
-            } else if (typeof(lines) === 'number') {
+            if (typeof(base.commands[command]) == 'object') {
 
-                base.addLine(lines);
+                /**
+                 * Call the execute function. It is responsible for writing to the
+                 * terminal screen.
+                 */
+
+                base.commands[command].execute(userArgs, base);
+                base.$el.find('>ul li.ft-command .ft-input');
 
             } else {
 
-                $.each(lines, function(index, line) {
-
-                    base.addLine(line);
-                });
+                base.addLine('command not found: "' + command + '"');
             }
 
             // --------------------------------------------------------------------------
@@ -250,11 +310,6 @@
             //  Add to the history, and reset the history index
             base.history.push(value);
             base.historyIndex = null;
-
-            // --------------------------------------------------------------------------
-
-            //  Clear the input
-            input.empty();
 
             // --------------------------------------------------------------------------
 
@@ -345,6 +400,57 @@
         // --------------------------------------------------------------------------
 
         /**
+         * Request some input from the user
+         * @param  {string} question The question to put to the user
+         * @return {string}
+         */
+        base.requestInput = function(question, callbackMethod, callbackInstance) {
+
+            //  Reset input
+            var container    = base.$el.find('>ul li.ft-command');
+            var commandInput = base.$el.find('>ul li.ft-command .ft-input');
+            var requestInput = base.$el.find('>ul li.ft-command .ft-request-input');
+            var value        = '';
+
+            //  Show input
+            container.addClass('ft-request-input');
+
+            //  Show the question
+            base.addLine(question);
+
+            //   Bind listener
+            base.focusRequestInput();
+            $(requestInput).off('keydown');
+            $(requestInput).on('keydown', function(e) {
+
+                var returnVal = true;
+
+                switch (e.keyCode) {
+
+                    //  Enter
+                    case 13:
+
+                        //  Get the user's response
+                        value = $.trim(requestInput.text());
+
+                        //  Reset the input
+                        base.focusInput();
+
+                        //  Execute the callback
+                        callbackInstance[callbackMethod](value);
+
+                        //  False return val
+                        returnVal = false;
+                        break;
+                }
+
+                return returnVal;
+            });
+        };
+
+        // --------------------------------------------------------------------------
+
+        /**
          * Destroys the fake terminal, reverting it back to its previous state
          * @return {Object} A reference to the class, for chaining
          */
@@ -352,6 +458,32 @@
 
             base.$el.empty();
             base.$el.html(base.existing);
+
+            return base;
+        };
+
+        // --------------------------------------------------------------------------
+
+        base.focusInput = function()
+        {
+            var container = base.$el.find('>ul li.ft-command');
+            var input     = base.$el.find('>ul li.ft-command .ft-input');
+
+            container.removeClass('ft-request-input');
+            input.empty().focus();
+
+            return base;
+        };
+
+        // --------------------------------------------------------------------------
+
+        base.focusRequestInput = function()
+        {
+            var container = base.$el.find('>ul li.ft-command');
+            var input     = base.$el.find('>ul li.ft-command .ft-request-input');
+
+            container.addClass('ft-request-input');
+            input.empty().focus();
 
             return base;
         };
@@ -370,10 +502,53 @@
      * The default options
      * @type {Object}
      */
-    $.shed.fakeTerminal.defaultOptions = {
+    $.fakeTerminal.fakeTerminal.defaultOptions = {
         'theme': 'default',
         'username': 'root',
-        'hostname': window.location.host
+        'hostname': window.location.host,
+        'historyLength': 1000,
+        'initCommands': ['welcome']
+    };
+
+    // --------------------------------------------------------------------------
+
+    /**
+     * The base command object, commands should extend this object
+     * @return {Object}
+     */
+    $.fakeTerminal.command._base = function() {
+
+        /**
+         * To avoid scope issues, use 'base' instead of 'this' to reference
+         * this class from internal events and functions.
+         */
+
+        var base = this;
+
+        /**
+         * Describes the command
+         * @param  {Object} instance  The fakeTerminal instance
+         * @return {Object}
+         */
+        base.info = function(instance) {
+
+            return {
+                'private': true
+            };
+        };
+
+        // --------------------------------------------------------------------------
+
+        /**
+         * This method is called when fake terminal encounters the command which this class represents
+         * @param  {array}  userArgs An array of arguments passed by the user
+         * @param  {Object} instance The fakeTerminal instance
+         * @return {array}           An array of lines to render to the screen
+         */
+        base.execute = function(userArgs, instance) {
+
+            return [];
+        };
     };
 
     // --------------------------------------------------------------------------
@@ -383,9 +558,11 @@
      * @param  {Object} options Overrides default options
      * @return {Object}         The instance of this class.
      */
-    $.fn.faketerminal = function(options){
-        return this.each(function(){
-            (new $.shed.fakeTerminal(this, options));
+    $.fn.faketerminal = function(options) {
+
+        return this.each(function() {
+
+            (new $.fakeTerminal.fakeTerminal(this, options));
         });
     };
 
