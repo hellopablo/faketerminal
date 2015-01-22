@@ -17,7 +17,7 @@ module.exports = function(grunt) {
     uglify: {
       compressed: {
         files: {
-          'dist/faketerminal.min.js': ['src/js/faketerminal.js']
+          'dist/faketerminal.min.js': ['src/js/faketerminal.js', 'src/js/commands/*.js']
         },
         options: {
           sourceMap: true,
@@ -26,7 +26,7 @@ module.exports = function(grunt) {
       },
       uncompressed: {
         files: {
-          'dist/faketerminal.js': ['src/js/faketerminal.js']
+          'dist/faketerminal.js': ['src/js/faketerminal.js', 'src/js/commands/*.js']
         },
         options: {
           mangle: false,
@@ -56,6 +56,6 @@ module.exports = function(grunt) {
     }
   });
 
-  grunt.registerTask('default', ['less', 'uglify:compressed', 'uglify:uncompressed', 'watch']);
+  grunt.registerTask('default', ['less', 'uglify:compressed', 'uglify:uncompressed']);
   grunt.registerTask('autocompile', ['watch']);
 };

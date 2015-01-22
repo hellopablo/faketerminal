@@ -1,5 +1,115 @@
 .faketerminal
 {
-	padding: 0;
-	box-sizing: border-box;
+    width: 100%;
+    height: 100%;
+    display: block;
+    padding: 1em;
+    text-align: left;
+    font-family: Courier, Monaco, monospace;
+    font-size: 1em;
+    overflow: auto;
+
+    //  Default colouring
+    background: #FFFFFF;
+    color: #000000;
+
+    > ul
+    {
+        padding: 0;
+        margin: 0;
+        list-style: none;
+
+        li
+        {
+            //  Default colouring
+            .ft-comment
+            {
+                color: rgb(51, 227, 51);
+            }
+
+            .ft-error
+            {
+                background: #FF0000;
+                color: #FFFFFF;
+            }
+
+            .ft-info
+            {
+                color: rgb(105, 109, 237);
+            }
+
+            .ft-message
+            {
+                color: rgb(248, 156, 70);
+            }
+
+            &.ft-command
+            {
+                position: relative;
+
+                .ft-prompt
+                {
+                    position: absolute;
+                    left: 0;
+                    top: 0;
+                    padding-right: 0.75em;
+                }
+
+                .ft-input
+                {
+                    width: 100%;
+                    min-height: 1em;
+                    line-height: 1em;
+                    min-width: 1em;
+                    outline-color: transparent;
+                    border: none;
+                    display: inline-block;
+                    outline: 0;
+                }
+
+                &:after
+                {
+                    clear: both;
+                    display: block;
+                }
+            }
+        }
+    }
+
+    // --------------------------------------------------------------------------
+
+    //  Colour themes
+    &.faketerminal-pro
+    {
+        background: rgba(0,0,0,0.85);
+        color: #FFFFFF;
+
+        > ul
+        {
+            li
+            {
+                //  Default colouring
+                .ft-comment
+                {
+
+                }
+
+                .ft-error
+                {
+                    background: #FF0000;
+                    color: #FFFFFF;
+                }
+
+                .ft-info
+                {
+
+                }
+
+                .ft-message
+                {
+
+                }
+            }
+        }
+    }
 }
