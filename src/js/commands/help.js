@@ -21,6 +21,9 @@
      */
     $.fakeTerminal.command.help = function(instance) {
 
+        //  Extend the base command
+        $.fakeTerminal.command._base.apply(this, arguments);
+
         /**
          * To avoid scope issues, use 'base' instead of 'this' to reference
          * this class from internal events and functions.
@@ -44,7 +47,8 @@
         // --------------------------------------------------------------------------
 
         /**
-         * This method is called when fake terminal encounters the command which this class represents
+         * This method is called when fake terminal encounters the command which this
+         * class represents
          * @param  {array} userArgs An array of arguments passed by the user
          * @return {Object}
          */
@@ -56,7 +60,7 @@
 
             if (userArgs.length === 0) {
 
-                returnVal.push('The following commands are available, run <span class="ft-comment">help [command]</span> to find out more.');
+                returnVal.push('The following commands are available, run <span class="ft-info">help [command]</span> to find out more.');
                 returnVal.push(' ');
 
                 var commandString = '';
@@ -102,8 +106,6 @@
 
                         commandInfo = temp.info();
 
-                        console.log(typeof(commandInfo.private));
-
                         if (typeof(commandInfo.description) === 'string') {
 
                             returnVal = [' ', command + ' -- ' + commandInfo.description, ' '];
@@ -130,6 +132,9 @@
 
                 instance.addLine(returnVal[i]);
             }
+
+            //  Cleanly exit
+            base.exit(0);
 
             return base;
         };

@@ -8,10 +8,10 @@
     font-family: Courier, Monaco, monospace;
     font-size: 0.9em;
     position: relative;
+    overflow: hidden;
 
     > .ft-header
     {
-        background:#E6E5E5;
         height: 35px;
         width:100%;
         border-top-right-radius: 5px;
@@ -26,33 +26,33 @@
             top: 12px;
             padding:0 15px;
             margin:0;
+            display:inline-block;
+            text-indent: -999em;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            -khtml-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+
+            &:hover
+            {
+                text-indent: 0;
+            }
 
             li.ft-header-button
             {
-                padding:0;
-                margin:0;
+                padding: 0;
+                margin: 0;
                 height: 14px;
                 width: 14px;
-                background-color: #CCCCCC;
-                display:block;
-                float:left;
+                display: block;
+                float: left;
                 margin-right:5px;
                 border-radius: 6px;
-
-                &.ft-header-button-close
-                {
-                    background-color: #D65551;
-                }
-
-                &.ft-header-button-minimise
-                {
-                    background-color: #D8DA51;
-                }
-
-                &.ft-header-button-maximise
-                {
-                    background-color: #62BF4E;
-                }
+                line-height: 17px;
+                text-align: center;
+                cursor: pointer;
             }
 
             &:after
@@ -76,35 +76,9 @@
         width: 100%;
         overflow: auto;
 
-        //  Default colouring
-        background: #FFFFFF;
-        color: #000000;
-
         > li
         {
             word-break: break-word;
-
-            //  Default colouring
-            .ft-comment
-            {
-                color: rgb(51, 227, 51);
-            }
-
-            .ft-error
-            {
-                background: #FF0000;
-                color: #FFFFFF;
-            }
-
-            .ft-info
-            {
-                color: rgb(105, 109, 237);
-            }
-
-            .ft-message
-            {
-                color: rgb(248, 156, 70);
-            }
 
             &.ft-command
             {
@@ -129,6 +103,11 @@
                     border: none;
                     display: inline-block;
                     outline: 0;
+
+                    *
+                    {
+                        text-decoration: none;
+                    }
                 }
 
                 .ft-request-input
@@ -157,41 +136,125 @@
             }
         }
     }
+}
 
-    // --------------------------------------------------------------------------
+// --------------------------------------------------------------------------
 
-    //  Colour themes
-    &.faketerminal-pro
+//  Colour themes
+//  =============
+
+//  Theme template
+.faketerminal-theme-template(
+
+    @colorHeader:                    #E6E5E5,
+    @colorHeaderButton:              #CCCCCC,
+    @colorHeaderButtonClose:         #D65551,
+    @colorHeaderButtonMinimise:      #D8DA51,
+    @colorHeaderButtonMaximise:      #62BF4E,
+    @colorScreenBackground:          rgba(0,0,0,0.7),
+    @colorScreenText:                #FFFFFF,
+    @colorContextCommentBackground:  none,
+    @colorContextCommentText:        #FFFF00,
+    @colorContextErrorBackground:    #FF0000,
+    @colorContextErrorText:          #FFFFFF,
+    @colorContextInfoBackground:     none,
+    @colorContextInfoText:           #33E333,
+    @colorContextQuestionBackground: none,
+    @colorContextQuestionText:       cyan,
+    @colorContextMuteBackground:     none,
+    @colorContextMuteText:           #CCCCCC
+
+) {
+
+    > .ft-header
     {
-        background: rgba(0,0,0,0.85);
-        color: #FFFFFF;
+        background: @colorHeader;
 
-        > ul
+        ul.ft-header-buttons
         {
-            li
+            li.ft-header-button
             {
-                //  Default colouring
-                .ft-comment
-                {
+                background-color: @colorHeaderButton;
 
+                &.ft-header-button-close
+                {
+                    background-color: @colorHeaderButtonClose;
+                    color: darken(@colorHeaderButtonClose, 20%);
+
+                    &:active
+                    {
+                        background-color: darken(@colorHeaderButtonClose, 10%);
+                    }
                 }
 
-                .ft-error
+                &.ft-header-button-minimise
                 {
-                    background: #FF0000;
-                    color: #FFFFFF;
+                    background-color: @colorHeaderButtonMinimise;
+                    color: darken(@colorHeaderButtonMinimise, 20%);
+                    line-height: 15px;
+
+                    &:active
+                    {
+                        background-color: darken(@colorHeaderButtonMinimise, 10%);
+                    }
                 }
 
-                .ft-info
+                &.ft-header-button-maximise
                 {
+                    background-color: @colorHeaderButtonMaximise;
+                    color: darken(@colorHeaderButtonMaximise, 20%);
 
-                }
-
-                .ft-message
-                {
-
+                    &:active
+                    {
+                        background-color: darken(@colorHeaderButtonMaximise, 10%);
+                    }
                 }
             }
         }
     }
+
+    > ul
+    {
+        background: @colorScreenBackground;
+        color: @colorScreenText;
+
+        li
+        {
+            .ft-comment
+            {
+                background: @colorContextCommentBackground;
+                color: @colorContextCommentText;
+            }
+
+            .ft-error
+            {
+                background: @colorContextErrorBackground;
+                color: @colorContextErrorText;
+            }
+
+            .ft-info
+            {
+                background: @colorContextInfoBackground;
+                color: @colorContextInfoText;
+            }
+
+            .ft-question
+            {
+                background: @colorContextQuestionBackground;
+                color: @colorContextQuestionText;
+            }
+
+            .ft-mute
+            {
+                background: @colorContextMuteBackground;
+                color: @colorContextMuteText;
+            }
+        }
+    }
+}
+
+//  Default theme
+.faketerminal-theme-default
+{
+    .faketerminal-theme-template();
 }
