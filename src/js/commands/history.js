@@ -21,6 +21,9 @@
      */
     $.fakeTerminal.command.history = function(instance) {
 
+        //  Extend the base command
+        $.fakeTerminal.command._base.apply(this, arguments);
+
         /**
          * To avoid scope issues, use 'base' instead of 'this' to reference
          * this class from internal events and functions.
@@ -44,7 +47,8 @@
         // --------------------------------------------------------------------------
 
         /**
-         * This method is called when fake terminal encounters the command which this class represents
+         * This method is called when fake terminal encounters the command which this
+         * class represents
          * @param  {array} userArgs An array of arguments passed by the user
          * @return {Object}
          */
@@ -56,6 +60,11 @@
 
                 instance.addLine(i + '  ' + instance.history[i]);
             }
+
+            instance.addLine('  ');
+
+            //  Cleanly exit
+            base.exit(0);
 
             return base;
         };

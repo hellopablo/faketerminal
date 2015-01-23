@@ -19,7 +19,7 @@
      * @param  {Object} instance The instance of fakeTerminal
      * @return {Object}
      */
-    $.fakeTerminal.command.echo = function(instance) {
+    $.fakeTerminal.command.clear = function(instance) {
 
         //  Extend the base command
         $.fakeTerminal.command._base.apply(this, arguments);
@@ -40,7 +40,7 @@
         base.info = function() {
 
             return {
-                description: 'Writes an argument to the standard output'
+                description: 'Clears the screen'
             };
         };
 
@@ -54,24 +54,7 @@
          */
         base.execute = function(userArgs) {
 
-            var returnVal;
-
-            //  Merge all the arguments
-            returnVal = userArgs.join(' ');
-            returnVal = $.trim(returnVal);
-
-            //  Remove quotes
-            returnVal = returnVal.replace(/["']/g, '');
-            returnVal = returnVal.replace(/["']/g, '');
-
-            //  Ensure we write *something* to the screen
-            if (returnVal.length === 0) {
-
-                returnVal = ' ';
-            }
-
-            //  Wrote to the terminal
-            instance.addLine(returnVal);
+            instance.theScreen.find('li:not(.ft-command)').remove();
 
             //  Cleanly exit
             base.exit(0);
