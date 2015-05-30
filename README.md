@@ -1,5 +1,7 @@
 # FakeTerminal
 
+[![Project Status](https://stillmaintained.com/hellopablo/faketerminal.png)](https://stillmaintained.com/hellopablo/faketerminal)
+
 A fake Javascript terminal for your website.
 
 [Demo](http://hellopablo.github.io/faketerminal/)
