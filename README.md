@@ -1,6 +1,8 @@
 # FakeTerminal
 
-A fake Javascript terminal for your website. [Demo](http://jquery.hellopablo.co.uk/faketerminal)
+A fake Javascript terminal for your website.
+
+[Demo](http://hellopablo.github.io/faketerminal/)
 
 
 ## How to use
