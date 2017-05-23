@@ -68,3 +68,9 @@ If you wish to start the watcher, you can do so by calling:
     grunt autocompile
 
 All the Less and JS files will be watched for changes, and compiled if necessary.
+
+
+### RoadMap
+
+- [ ] Use a promise based system for commands
+- [ ] Allow more dynamic customisation, e.g. a callable for customisng the prompt
