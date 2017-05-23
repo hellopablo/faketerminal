@@ -1,6 +1,6 @@
 {
   "name": "faketerminal",
-  "version": "0.1.5",
+  "version": "1.2.0",
   "main": "dist/faketerminal.min.js",
   "authors": [
     "Pablo de la Pena <pablo@hellopablo.co.uk>"
