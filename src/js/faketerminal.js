@@ -498,7 +498,7 @@
          * Handles when a command is entered
          * @return {Object} A reference to the class, for chaining
          */
-        base.enterCommandInput = function() {
+        base.enterCommandInput = function(noHistory) {
 
             var value, command,userArgs;
 
@@ -569,8 +569,7 @@
             // --------------------------------------------------------------------------
 
             //  Add to the history, and reset the history index
-            if (value.length > 0) {
-
+            if (!noHistory && value.length > 0) {
                 base.history.push(value);
             }
             base.historyIndex = null;
@@ -812,6 +811,26 @@
 
         // --------------------------------------------------------------------------
 
+        /**
+         * Executes a command, or an array of commands
+         * @param  {String|Array} command The command, or commands, to execute
+         * @param  {Boolean}      hidden  Whether the commands are added to the command history
+         * @return {Object}               A reference to the class, for chaining
+         */
+        base.exec = function(command, hidden) {
+            if ($.isArray(command)) {
+                for (var i = 0, j = command.length; i < j; i++) {
+                    base.exec(command[i], hidden);
+                }
+            } else {
+                base.setCommandInput(command);
+                base.enterCommandInput(hidden);
+            }
+            return base;
+        };
+
+        // --------------------------------------------------------------------------
+
         // Run constructor
         base.__construct();
 
@@ -898,10 +917,8 @@
      * @return {Object}         The instance of this class.
      */
     $.fn.faketerminal = function(options) {
-
         return this.each(function() {
-
-            (new $.fakeTerminal.fakeTerminal(this, options));
+            $(this).data('instance', new $.fakeTerminal.fakeTerminal(this, options));
         });
     };
 

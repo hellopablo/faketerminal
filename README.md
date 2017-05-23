@@ -1,7 +1,5 @@
 # FakeTerminal
 
-[![Project Status](https://stillmaintained.com/hellopablo/faketerminal.png)](https://stillmaintained.com/hellopablo/faketerminal)
-
 A fake Javascript terminal for your website.
 
 [Demo](http://hellopablo.github.io/faketerminal/)
@@ -68,3 +66,10 @@ If you wish to start the watcher, you can do so by calling:
     grunt autocompile
 
 All the Less and JS files will be watched for changes, and compiled if necessary.
+
+
+### RoadMap
+
+- [ ] Complete this README.md
+- [ ] Use a promise based system for commands
+- [ ] Allow more dynamic customisation, e.g. a callable for customisng the prompt
