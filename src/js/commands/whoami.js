@@ -1,9 +1,9 @@
 /**
- * The "echo" command
+ * The "whoami" command
  * @param  {Object} instance The instance of FakeTerminal
  * @return {Object}
  */
-window.FakeTerminal.command.echo = function (instance) {
+window.FakeTerminal.command.whoami = function (instance) {
 
     //  Extend the base command
     window.FakeTerminal.command._base.apply(this, arguments);
@@ -22,7 +22,7 @@ window.FakeTerminal.command.echo = function (instance) {
      */
     base.info = function () {
         return {
-            description: 'Writes an argument to the standard output'
+            description: 'Prints the user\'s username to standard output'
         };
     };
 
@@ -34,26 +34,7 @@ window.FakeTerminal.command.echo = function (instance) {
      * @return {Object}
      */
     base.execute = function () {
-
-        var args = $.makeArray(arguments);
-        var returnVal;
-
-        //  Merge all the arguments
-        returnVal = args.join(' ');
-        returnVal = $.trim(returnVal);
-
-        //  Remove quotes
-        returnVal = returnVal.replace(/["']/g, '');
-        returnVal = returnVal.replace(/["']/g, '');
-
-        //  Ensure we write *something* to the screen
-        if (returnVal.length === 0) {
-            returnVal = ' ';
-        }
-
-        //  Write to the terminal
-        instance.output.write(returnVal);
-
+        instance.output.write(instance.options.username);
         base.deferred.resolve();
         return base.deferred.promise();
     };

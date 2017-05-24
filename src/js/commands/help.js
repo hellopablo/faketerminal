@@ -1,6 +1,6 @@
 /**
  * The "help" command
- * @param  {Object} instance The instance of fakeTerminal
+ * @param  {Object} instance The instance of FakeTerminal
  * @return {Object}
  */
 window.FakeTerminal.command.help = function (instance) {
@@ -12,7 +12,6 @@ window.FakeTerminal.command.help = function (instance) {
      * To avoid scope issues, use 'base' instead of 'this' to reference
      * this class from internal events and functions.
      */
-
     var base = this;
 
     // --------------------------------------------------------------------------
@@ -30,33 +29,32 @@ window.FakeTerminal.command.help = function (instance) {
     // --------------------------------------------------------------------------
 
     /**
-     * This method is called when fake terminal encounters the command which this
+     * This method is called when FakeTerminal encounters the command which this
      * class represents
-     * @param  {Array} userArgs An array of arguments passed by the user
      * @return {Object}
      */
-    base.execute = function (userArgs) {
+    base.execute = function () {
 
-        var deferred = new $.Deferred();
         var returnVal   = [];
         var commandInfo = {};
-        var temp;
 
-        if (userArgs.length === 0) {
+        if (arguments.length === 0) {
 
-            returnVal.push('The following commands are available, run <span class="ft-info">help [command]</span> to find out more.');
+            returnVal.push('The following commands are available, run <info>help [command]</info> to find out more.');
             returnVal.push(' ');
 
             var commandString = '';
-            $.each(window.FakeTerminal.command, function (command, value) {
-                var temp = new window.FakeTerminal.command[command](instance);
+            $.each(window.FakeTerminal.command, function (command) {
+
+                var temp = instance.findCommand(command);
+                if (!temp) {
+                    return;
+                }
 
                 //  Check to see if the command is private
-                if (typeof(temp.info) == 'function') {
-
+                if (typeof temp.info === 'function') {
                     commandInfo = temp.info();
-
-                    if (typeof(commandInfo.private) == 'boolean' && commandInfo.private === true) {
+                    if (typeof commandInfo.private === 'boolean' && commandInfo.private === true) {
                         return;
                     }
                 }
@@ -69,26 +67,16 @@ window.FakeTerminal.command.help = function (instance) {
 
         } else {
 
-            var command        = userArgs[0];
-            var isValidCommand = false;
+            var command = instance.findCommand(arguments[0]);
+            if (command) {
 
-            $.each(window.FakeTerminal.command, function (index, value) {
-                if (index === command) {
-                    isValidCommand = true;
-                }
-            });
+                if (typeof command.info === 'function') {
 
-            if (isValidCommand) {
+                    commandInfo = command.info();
 
-                temp = new window.FakeTerminal.command[command](instance);
-
-                if (typeof(temp.info) == 'function') {
-
-                    commandInfo = temp.info();
-
-                    if (typeof(commandInfo.description) === 'string') {
-                        returnVal = [' ', command + ' -- ' + commandInfo.description, ' '];
-                    } else if (typeof(commandInfo.description) === 'object') {
+                    if (typeof commandInfo.description === 'string') {
+                        returnVal = [' ', arguments[0] + ' -- <comment>' + commandInfo.description + '</comment>', ' '];
+                    } else if (typeof commandInfo.description === 'object') {
                         returnVal = commandInfo.description;
                     }
                 }
@@ -104,11 +92,11 @@ window.FakeTerminal.command.help = function (instance) {
 
         //  Write to the terminal
         for (var i = 0; i < returnVal.length; i++) {
-            base.write(returnVal[i]);
+            instance.output.write(returnVal[i]);
         }
 
-        deferred.resolve();
-        return deferred;
+        base.deferred.resolve();
+        return base.deferred.promise();
     };
 
     // --------------------------------------------------------------------------

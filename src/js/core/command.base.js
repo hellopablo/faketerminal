@@ -11,6 +11,17 @@ window.FakeTerminal.command._base = function (instance) {
 
     var base = this;
 
+    // --------------------------------------------------------------------------
+
+    /**
+     * The commands main deferred object; this is resolved or rejected when the
+     * command completes
+     * @type {$.Deferred}
+     */
+    base.deferred = new $.Deferred();
+
+    // --------------------------------------------------------------------------
+
     /**
      * Describes the command
      * @return {Object}
@@ -24,24 +35,21 @@ window.FakeTerminal.command._base = function (instance) {
     // --------------------------------------------------------------------------
 
     /**
-     * Writes a new line to the console
-     * @param (String} line The line to write
-     * @returns {Window.FakeTerminal.command}
-     */
-    base.write = function (line) {
-        instance.addLine(line);
-        return base;
-    };
-
-    // --------------------------------------------------------------------------
-
-    /**
      * This method is called when fake terminal encounters the command which this class represents
      * @param  {Array} userArgs An array of arguments passed by the user
      * @return {Object}          An array of lines to render to the screen
      */
     base.execute = function (userArgs) {
-        var deferred = new $.Deferred();
-        return deferred;
+        base.deferred.resolve();
+        return base.deferred.promise();
+    };
+
+    // --------------------------------------------------------------------------
+
+    /**
+     * Called if the command is terminated with CTL+C; useful for cleaning up
+     */
+    base.terminate = function() {
+        base.deferred.reject();
     };
 };

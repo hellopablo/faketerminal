@@ -20,7 +20,7 @@ Include the JS and the CSS in your page
 
 Instantiate FakeTerminal on an empty `<div>`
 
-    $('#myFaketerminal').faketerminal({
+    $('#faketerminal').faketerminal({
         username: 'pablo',
         hostname: 'hellopablo.co.uk'
     });
@@ -33,30 +33,27 @@ The following options are available to you:
 
 ```
 {
-    //  Which theme to skin the console with
-    'theme': 'default',
-
     //  The user's username
     'username': 'root',
 
     //  The hostname
-    'hostname': functwindow.location.host,
+    'hostname': window.location.host,
 
     //  How many history items to save
-    'historyLength': 1000,
-    
+    'history': 1000,
+
     //  The prompt pattern
-    'prompt': '%hostname%: %cwd% %username%$',
+    'prompt': '[%username%@%hostname%: %cwd%] ',
 
     //  Any commands to run on "login"
-    'loginCommand': null,
+    'login': null,
 
     //  The user's current working directory
     'cwd': '~'
 }
 ```
 
-**Note:** The `username`, `hostname`, `loginCommand` and `initDir` can all be functions if you require dynamic behaviour
+**Note:** The `username`, `hostname` and `cwd` options can all be functions if you require dynamic behaviour.
 
 
 
@@ -65,11 +62,22 @@ The following options are available to you:
 > @todo - write this part of the docs
 
 
+## Colouring Output
+
+You can colour the output (including the prompt) by wrapping text in any of the following tags:
+
+```
+<info></info>
+<error></error>
+<comment></comment>
+<question></question>
+<muted></muted>
+```
+
 
 ## How to Contribute
 
-I welcome contributions to FakeTerminal. Fork the repo and submit a pull request. Please ensure that faketerminal.js
-compiles and that any relevant documentation is updated before sending the pull request.
+I welcome contributions to FakeTerminal. Fork the repo and submit a pull request. Please ensure that faketerminal.js compiles and that any relevant documentation is updated before sending the pull request. If you want to write some tests then that would be very welcomed!
 
 
 
@@ -99,4 +107,5 @@ All the Less and JS files will be watched for changes, and compiled if necessary
 
 - [ ] Complete this README.md
 - [ ] Support a virtual file system
-- [ ] Move input/output to their relevant classes
+- [ ] Support for user input
+- [ ] Draggable window

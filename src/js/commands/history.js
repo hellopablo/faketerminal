@@ -1,6 +1,6 @@
 /**
  * The "history" command
- * @param  {Object} instance The instance of fakeTerminal
+ * @param  {Object} instance The instance of FakeTerminal
  * @return {Object}
  */
 window.FakeTerminal.command.history = function (instance) {
@@ -12,7 +12,6 @@ window.FakeTerminal.command.history = function (instance) {
      * To avoid scope issues, use 'base' instead of 'this' to reference
      * this class from internal events and functions.
      */
-
     var base = this;
 
     // --------------------------------------------------------------------------
@@ -30,24 +29,24 @@ window.FakeTerminal.command.history = function (instance) {
     // --------------------------------------------------------------------------
 
     /**
-     * This method is called when fake terminal encounters the command which this
+     * This method is called when FakeTerminal encounters the command which this
      * class represents
-     * @param  {Array} userArgs An array of arguments passed by the user
      * @return {Object}
      */
-    base.execute = function (userArgs) {
+    base.execute = function () {
 
-        var deferred = new $.Deferred();
-        base.write('  ');
+        instance.output.write('  ');
 
-        for (var i = 0; i < instance.history.length; i++) {
-            base.write(i + '  ' + instance.history[i]);
+        for (var i = 0; i < instance.history.items.length; i++) {
+            instance.output.write(
+                instance.history.items[i].counter + '  ' + instance.history.items[i].command
+            );
         }
 
-        base.write('  ');
+        instance.output.write('  ');
 
-        deferred.resolve();
-        return deferred;
+        base.deferred.resolve();
+        return base.deferred.promise();
     };
 
     // --------------------------------------------------------------------------

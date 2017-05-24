@@ -4,9 +4,6 @@
  */
 window.FakeTerminal.defaultOptions = {
 
-    //  Which theme to skin the console with
-    'theme': 'default',
-
     //  The user's username
     'username': 'root',
 
@@ -14,13 +11,13 @@ window.FakeTerminal.defaultOptions = {
     'hostname': window.location.host,
 
     //  How many history items to save
-    'historyLength': 1000,
+    'history': 1000,
 
     //  The prompt pattern
-    'prompt': '%hostname%: %cwd% %username%$ ',
+    'prompt': '[%username%@%hostname%: %cwd%] ',
 
     //  Any commands to run on "login"
-    'loginCommand': null,
+    'login': null,
 
     //  The user's current working directory
     'cwd': '~'

@@ -18,19 +18,14 @@
 
             html,
             body {
-                -ms-text-size-adjust: 100%;
-                -webkit-text-size-adjust: 100%;
                 color: #333333;
-                overflow: hidden;
                 font-family: monospace;
                 font-size: 16px;
                 line-height: 1.6em;
             }
 
             #container {
-                word-wrap: break-word;
                 max-width: 800px;
-                min-width: 200px;
                 margin: 0 auto;
                 padding: 30px;
                 text-align: center;
@@ -56,40 +51,9 @@
                 font-size: 0.8em;
             }
 
-            img {
-                border: 0;
-                max-width: 100%;
-                -moz-box-sizing: border-box;
-                box-sizing: border-box;
-            }
-
-            p {
-                margin-top: 0;
-                margin-bottom: 16px;
-            }
-
-            a {
-                background: transparent;
-                color: #4183c4;
-                text-decoration: none;
-            }
-
-            a:active,
-            a:hover {
-                outline: 0;
-            }
-
-            a:hover,
-            a:focus,
-            a:active {
-                text-decoration: underline;
-            }
-
             #faketerminal {
                 height: 350px;
                 margin: 2rem 0;
-                background: #FFF;
-                border-radius: 2px;
             }
 
             .hidden {
@@ -129,12 +93,9 @@
         </div>
         <script type="text/javascript">
             $('#faketerminal')
-                .faketerminal()
-                .on('ft:command', function(e, instance, command) {
-                    console.log(e, instance, command);
-                });
+                .faketerminal();
 
-            setInterval(function() {
+            setInterval(function () {
                 $('#logo-blink').toggleClass('hidden');
             }, 1000);
         </script>

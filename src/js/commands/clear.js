@@ -1,6 +1,6 @@
 /**
  * The "clear" command
- * @param  {Object} instance The instance of fakeTerminal
+ * @param  {Object} instance The instance of FakeTerminal
  * @return {Object}
  */
 window.FakeTerminal.command.clear = function (instance) {
@@ -12,7 +12,6 @@ window.FakeTerminal.command.clear = function (instance) {
      * To avoid scope issues, use 'base' instead of 'this' to reference
      * this class from internal events and functions.
      */
-
     var base = this;
 
     // --------------------------------------------------------------------------
@@ -30,21 +29,14 @@ window.FakeTerminal.command.clear = function (instance) {
     // --------------------------------------------------------------------------
 
     /**
-     * This method is called when fake terminal encounters the command which this
+     * This method is called when FakeTerminal encounters the command which this
      * class represents
-     * @param  {Array} userArgs An array of arguments passed by the user
      * @return {Object}
      */
-    base.execute = function (userArgs) {
-        var deferred = new $.Deferred();
-
-        instance
-            .theScreen
-            .find('li:not(.ft-command)')
-            .remove();
-
-        deferred.resolve();
-        return deferred;
+    base.execute = function () {
+        instance.output.clear();
+        base.deferred.resolve();
+        return base.deferred.promise();
     };
 
     // --------------------------------------------------------------------------

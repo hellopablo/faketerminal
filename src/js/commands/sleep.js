@@ -1,6 +1,6 @@
 /**
  * The "sleep" command
- * @param  {Object} instance The instance of fakeTerminal
+ * @param  {Object} instance The instance of FakeTerminal
  * @return {Object}
  */
 window.FakeTerminal.command.sleep = function (instance) {
@@ -12,8 +12,11 @@ window.FakeTerminal.command.sleep = function (instance) {
      * To avoid scope issues, use 'base' instead of 'this' to reference
      * this class from internal events and functions.
      */
-
     var base = this;
+
+    // --------------------------------------------------------------------------
+
+    base.timeout = null;
 
     // --------------------------------------------------------------------------
 
@@ -30,22 +33,34 @@ window.FakeTerminal.command.sleep = function (instance) {
     // --------------------------------------------------------------------------
 
     /**
-     * This method is called when fake terminal encounters the command which this
+     * This method is called when FakeTerminal encounters the command which this
      * class represents
-     * @param  {Array} userArgs An array of arguments passed by the user
      * @return {Object}
      */
-    base.execute = function (userArgs) {
-        var deferred = new $.Deferred();
+    base.execute = function () {
+
         var duration = 0;
-        if (userArgs.length) {
-            duration = parseInt(userArgs[0]);
+        if (arguments.length) {
+            duration = parseInt(arguments[0]);
         }
-        setTimeout(function() {
-            deferred.resolve();
+        instance.output.write('Sleeping for ' + duration + ' seconds...');
+        base.timeout = setTimeout(function() {
+            instance.output.write('awake!');
+            base.deferred.resolve();
         }, duration * 1000);
 
-        return deferred;
+        return base.deferred.promise();
+    };
+
+    // --------------------------------------------------------------------------
+
+
+    /**
+     * Called if the command is terminated with CTL+C; useful for cleaning up
+     */
+    base.terminate = function() {
+        clearTimeout(base.timeout);
+        base.deferred.reject();
     };
 
     // --------------------------------------------------------------------------
