@@ -1,0 +1,3 @@
+window.FakeTerminal.input = {
+
+};

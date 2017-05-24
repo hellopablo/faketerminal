@@ -1,9 +1,9 @@
 /**
- * The "history" command
+ * The "sleep" command
  * @param  {Object} instance The instance of fakeTerminal
  * @return {Object}
  */
-window.FakeTerminal.command.history = function (instance) {
+window.FakeTerminal.command.sleep = function (instance) {
 
     //  Extend the base command
     window.FakeTerminal.command._base.apply(this, arguments);
@@ -23,7 +23,7 @@ window.FakeTerminal.command.history = function (instance) {
      */
     base.info = function () {
         return {
-            description: 'Displays the command history, up to ' + instance.options.historyLength + ' items'
+            description: 'Does nothing for a short while'
         };
     };
 
@@ -36,17 +36,15 @@ window.FakeTerminal.command.history = function (instance) {
      * @return {Object}
      */
     base.execute = function (userArgs) {
-
         var deferred = new $.Deferred();
-        base.write('  ');
-
-        for (var i = 0; i < instance.history.length; i++) {
-            base.write(i + '  ' + instance.history[i]);
+        var duration = 0;
+        if (userArgs.length) {
+            duration = parseInt(userArgs[0]);
         }
+        setTimeout(function() {
+            deferred.resolve();
+        }, duration * 1000);
 
-        base.write('  ');
-
-        deferred.resolve();
         return deferred;
     };
 

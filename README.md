@@ -3,10 +3,7 @@
 A fake Javascript terminal for your website - [Demo](http://hellopablo.github.io/faketerminal/)
 
 
-## How to use
-
-
-### Basic Usage
+## Installation
 
 The easiest way to install faketerminal.js is via [Bower](http://bower.io).
 
@@ -21,10 +18,11 @@ Include the JS and the CSS in your page
     <script src="/bower_components/jquery/dist/jquery.min.js" type="text/javascript"></script>
     <script src="/bower_components/faketerminal/dist/faketerminal.min.js" type="text/javascript"></script>
 
-Instantiate faketerminal on an empty `<div>`
+Instantiate FakeTerminal on an empty `<div>`
 
     $('#myFaketerminal').faketerminal({
-        options: '@todo'
+        username: 'pablo',
+        hostname: 'hellopablo.co.uk'
     });
 
 
@@ -33,7 +31,32 @@ Instantiate faketerminal on an empty `<div>`
 
 The following options are available to you:
 
-> @todo - write this part of the docs
+```
+{
+    //  Which theme to skin the console with
+    'theme': 'default',
+
+    //  The user's username
+    'username': 'root',
+
+    //  The hostname
+    'hostname': functwindow.location.host,
+
+    //  How many history items to save
+    'historyLength': 1000,
+    
+    //  The prompt pattern
+    'prompt': '%hostname%: %cwd% %username%$',
+
+    //  Any commands to run on "login"
+    'loginCommand': null,
+
+    //  The user's current working directory
+    'cwd': '~'
+}
+```
+
+**Note:** The `username`, `hostname`, `loginCommand` and `initDir` can all be functions if you require dynamic behaviour
 
 
 
@@ -45,36 +68,35 @@ The following options are available to you:
 
 ## How to Contribute
 
-I welcome contirbutions to fake terminal. Fork the repo and submit a pull request. Please ensure that faketerminal.js
+I welcome contributions to FakeTerminal. Fork the repo and submit a pull request. Please ensure that faketerminal.js
 compiles and that any relevant documentation is updated before sending the pull request.
 
 
 
-### Compiling LESS and JS
+### Compiling CSS and JS
 
-I use Grunt to compile everything. Firstly, install `grunt-cli` globally. It's recommended to run the grunt client on a
-per-project basis, so if you have it installed globally, remove it.
+This project uses Grunt to compile CSS and JS. You'll need `grunt-cli` installed:
 
     npm install -g grunt-cli
 
-Install the dev dependancies
+Install the dev dependencies
 
     npm install
 
-Call `grunt` in the project root
+Call `grunt` in the project root to compile assets and then watch for changes
 
     grunt
 
-If you wish to start the watcher, you can do so by calling:
+If you simply wish to build (and not watch) then you can use:
 
-    grunt autocompile
+    grunt build
 
 All the Less and JS files will be watched for changes, and compiled if necessary.
 
 
 
-### RoadMap
+### @todo
 
 - [ ] Complete this README.md
-- [ ] Use a promise based system for commands
-- [ ] Allow more dynamic customisation, e.g. a callable for customisng the prompt
+- [ ] Support a virtual file system
+- [ ] Move input/output to their relevant classes

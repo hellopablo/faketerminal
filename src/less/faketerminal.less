@@ -10,67 +10,13 @@
     position: relative;
     overflow: hidden;
 
-    > .ft-header
-    {
-        height: 35px;
-        width:100%;
-        border-top-right-radius: 5px;
-        border-top-left-radius: 5px;
-        position:absolute;
-        top:0;
-        left:0;
-
-        ul.ft-header-buttons
-        {
-            position: relative;
-            top: 12px;
-            padding:0 15px;
-            margin:0;
-            display:inline-block;
-            text-indent: -999em;
-            -webkit-touch-callout: none;
-            -webkit-user-select: none;
-            -khtml-user-select: none;
-            -moz-user-select: none;
-            -ms-user-select: none;
-            user-select: none;
-
-            &:hover
-            {
-                text-indent: 0;
-            }
-
-            li.ft-header-button
-            {
-                padding: 0;
-                margin: 0;
-                height: 14px;
-                width: 14px;
-                display: block;
-                float: left;
-                margin-right:5px;
-                border-radius: 6px;
-                line-height: 17px;
-                text-align: center;
-                cursor: pointer;
-            }
-
-            &:after
-            {
-                content: '';
-                display:block;
-                clear:both;
-            }
-        }
-    }
-
     > ul
     {
         padding: 1em;
         margin: 0;
         list-style: none;
         position: absolute;
-        top: 35px;
+        top: 0;
         bottom: 0;
         left: 0;
         width: 100%;
@@ -146,11 +92,6 @@
 //  Theme template
 .faketerminal-theme-template(
 
-    @colorHeader:                    #E6E5E5,
-    @colorHeaderButton:              #CCCCCC,
-    @colorHeaderButtonClose:         #D65551,
-    @colorHeaderButtonMinimise:      #D8DA51,
-    @colorHeaderButtonMaximise:      #62BF4E,
     @colorScreenBackground:          rgba(0,0,0,0.7),
     @colorScreenText:                #FFFFFF,
     @colorContextCommentBackground:  none,
@@ -165,53 +106,6 @@
     @colorContextMuteText:           #CCCCCC
 
 ) {
-
-    > .ft-header
-    {
-        background: @colorHeader;
-
-        ul.ft-header-buttons
-        {
-            li.ft-header-button
-            {
-                background-color: @colorHeaderButton;
-
-                &.ft-header-button-close
-                {
-                    background-color: @colorHeaderButtonClose;
-                    color: darken(@colorHeaderButtonClose, 20%);
-
-                    &:active
-                    {
-                        background-color: darken(@colorHeaderButtonClose, 10%);
-                    }
-                }
-
-                &.ft-header-button-minimise
-                {
-                    background-color: @colorHeaderButtonMinimise;
-                    color: darken(@colorHeaderButtonMinimise, 20%);
-                    line-height: 15px;
-
-                    &:active
-                    {
-                        background-color: darken(@colorHeaderButtonMinimise, 10%);
-                    }
-                }
-
-                &.ft-header-button-maximise
-                {
-                    background-color: @colorHeaderButtonMaximise;
-                    color: darken(@colorHeaderButtonMaximise, 20%);
-
-                    &:active
-                    {
-                        background-color: darken(@colorHeaderButtonMaximise, 10%);
-                    }
-                }
-            }
-        }
-    }
 
     > ul
     {
