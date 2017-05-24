@@ -1,11 +1,10 @@
 # FakeTerminal
 
-A fake Javascript terminal for your website.
-
-[Demo](http://hellopablo.github.io/faketerminal/)
+A fake Javascript terminal for your website - [Demo](http://hellopablo.github.io/faketerminal/)
 
 
 ## How to use
+
 
 ### Basic Usage
 
@@ -29,22 +28,27 @@ Instantiate faketerminal on an empty `<div>`
     });
 
 
+
 ## Options
 
 The following options are available to you:
 
-[@todo]
+> @todo - write this part of the docs
+
 
 
 ## Adding Commands
 
-Easily extend the basic set of commands which faketerminal responds to by ... [@todo]
+> @todo - write this part of the docs
+
 
 
 ## How to Contribute
 
 I welcome contirbutions to fake terminal. Fork the repo and submit a pull request. Please ensure that faketerminal.js
 compiles and that any relevant documentation is updated before sending the pull request.
+
+
 
 ### Compiling LESS and JS
 
@@ -66,6 +70,7 @@ If you wish to start the watcher, you can do so by calling:
     grunt autocompile
 
 All the Less and JS files will be watched for changes, and compiled if necessary.
+
 
 
 ### RoadMap
