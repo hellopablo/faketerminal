@@ -18,19 +18,14 @@
 
             html,
             body {
-                -ms-text-size-adjust: 100%;
-                -webkit-text-size-adjust: 100%;
                 color: #333333;
-                overflow: hidden;
                 font-family: monospace;
                 font-size: 16px;
                 line-height: 1.6em;
             }
 
             #container {
-                word-wrap: break-word;
-                max-width: 600px;
-                min-width: 200px;
+                max-width: 800px;
                 margin: 0 auto;
                 padding: 30px;
                 text-align: center;
@@ -38,9 +33,7 @@
 
             h1 {
                 position: relative;
-                margin: 0.67em 0;
-                margin-top: 1em;
-                margin-bottom: 16px;
+                margin: 1em;
                 padding-bottom: 1em;
                 font-size: 2.25em;
                 font-weight: bold;
@@ -58,38 +51,17 @@
                 font-size: 0.8em;
             }
 
-            img {
-                border: 0;
-                max-width: 100%;
-                -moz-box-sizing: border-box;
-                box-sizing: border-box;
-            }
-
-            p {
-                margin-top: 0;
-                margin-bottom: 16px;
-            }
-
-            a {
-                background: transparent;
-                color: #4183c4;
-                text-decoration: none;
-            }
-
-            a:active,
-            a:hover {
-                outline: 0;
-            }
-
-            a:hover,
-            a:focus,
-            a:active {
-                text-decoration: underline;
-            }
-
             #faketerminal {
                 height: 350px;
                 margin: 2rem 0;
+            }
+
+            .hidden {
+                opacity: 0;
+            }
+
+            .transition {
+                transition: all 1s;
             }
 
         </style>
@@ -98,21 +70,24 @@
         <div id="container">
             <h1>
                 <svg width="40" height="40" viewBox="0 0 189 189" version="1.1" xmlns="http://www.w3.org/2000/svg">
-                    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-                        <g id="Group-2">
-                            <rect id="Rectangle" fill="#000000" x="0" y="0" width="189" height="189" rx="8"></rect>
-                            <g id="Group" transform="translate(43.000000, 57.000000)" stroke="#FFFFFF" stroke-width="18" stroke-linecap="round">
-                                <path d="M0.13713554,0.3 L34.0672449,34.0857259" id="Line"></path>
-                                <path d="M0,34.2 L33.9301094,67.9857259" id="Line" transform="translate(17.173077, 51.300000) scale(1, -1) translate(-17.173077, -51.300000) "></path>
-                                <path d="M55.7948718,74.4 L103.779293,74.4" id="Line"></path>
-                            </g>
+                    <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+                        <rect fill="#000000" x="0" y="0" width="189" height="189" rx="8"></rect>
+                        <g transform="translate(43.000000, 57.000000)" stroke="#FFFFFF" stroke-width="18" stroke-linecap="round">
+                            <path d="M0.13713554,0.3 L34.0672449,34.0857259"></path>
+                            <path d="M0,34.2 L33.9301094,67.9857259" transform="translate(17.173077, 51.300000) scale(1, -1) translate(-17.173077, -51.300000) "></path>
+                            <path d="M55.7948718,74.4 L103.779293,74.4" id="logo-blink" class="transition"></path>
                         </g>
                     </g>
                 </svg>
                 FakeTerminal
             </h1>
             <h2>A fake Javascript terminal for your website.</h2>
-            <div id="faketerminal"></div>
+            <div id="faketerminal">
+                <info>FakeTerminal</info>
+                <line></line>
+                This is a basic terminal emulator for websites, type <comment>help</comment> to get started
+
+            </div>
             <p>
                 <a href="https://github.com/hellopablo/faketerminal">
                     <svg width="35" height="35" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" fill-rule="evenodd" clip-rule="evenodd" stroke-linejoin="round" stroke-miterlimit="1.414">
@@ -122,7 +97,12 @@
             </p>
         </div>
         <script type="text/javascript">
-            $('#faketerminal').faketerminal();
+            $('#faketerminal')
+                .faketerminal();
+
+            setInterval(function () {
+                $('#logo-blink').toggleClass('hidden');
+            }, 1000);
         </script>
     </body>
 </html>
