@@ -1,7 +1,7 @@
 {
   "name": "faketerminal",
   "description": "A fake Javascript terminal for your website",
-  "version": "1.2.0",
+  "version": "2.0.0",
   "author": {
     "name": "Pablo de la Peña",
     "email": "p@shedcollective.org"

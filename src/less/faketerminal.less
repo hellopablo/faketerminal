@@ -1,260 +1,91 @@
-.faketerminal
-{
+@ft-background-color: rgba(0, 0, 0, 0.7);
+@ft-text-color: #ffffff;
+@ft-font-family: Courier, Monaco, monospace;
+@ft-info-text-color: #33e333;
+@ft-info-background-color: transparent;
+@ft-error-text-color: #ffffff;
+@ft-error-background-color: #ff0000;
+@ft-comment-text-color: #ffff00;
+@ft-comment-background-color: transparent;
+@ft-question-text-color: cyan;
+@ft-question-background-color: transparent;
+@ft-muted-text-color: #cccccc;
+@ft-muted-background-color: transparent;
+
+.faketerminal {
     width: 100%;
     height: 100%;
-    padding: 0;
+    padding: 1rem;
     display: block;
     text-align: left;
-    font-family: Courier, Monaco, monospace;
+    font-family: @ft-font-family;
     font-size: 0.9em;
     position: relative;
-    overflow: hidden;
+    background: @ft-background-color;
+    color: @ft-text-color;
+    border-radius: 2px;
+    box-sizing: border-box;
+    overflow: auto;
 
-    > .ft-header
-    {
-        height: 35px;
-        width:100%;
-        border-top-right-radius: 5px;
-        border-top-left-radius: 5px;
-        position:absolute;
-        top:0;
-        left:0;
-
-        ul.ft-header-buttons
-        {
-            position: relative;
-            top: 12px;
-            padding:0 15px;
-            margin:0;
-            display:inline-block;
-            text-indent: -999em;
-            -webkit-touch-callout: none;
-            -webkit-user-select: none;
-            -khtml-user-select: none;
-            -moz-user-select: none;
-            -ms-user-select: none;
-            user-select: none;
-
-            &:hover
-            {
-                text-indent: 0;
-            }
-
-            li.ft-header-button
-            {
-                padding: 0;
-                margin: 0;
-                height: 14px;
-                width: 14px;
-                display: block;
-                float: left;
-                margin-right:5px;
-                border-radius: 6px;
-                line-height: 17px;
-                text-align: center;
-                cursor: pointer;
-            }
-
-            &:after
-            {
-                content: '';
-                display:block;
-                clear:both;
-            }
-        }
-    }
-
-    > ul
-    {
-        padding: 1em;
+    &__screen {
         margin: 0;
         list-style: none;
-        position: absolute;
-        top: 35px;
-        bottom: 0;
-        left: 0;
         width: 100%;
-        overflow: auto;
 
-        > li
-        {
+        &__line {
             word-break: break-word;
-
-            &.ft-command
-            {
-                position: relative;
-
-                .ft-prompt
-                {
-                    position: absolute;
-                    left: 0;
-                    top: 0;
-                    padding-right: 0.75em;
-                }
-
-                .ft-input,
-                .ft-request-input
-                {
-                    width: 100%;
-                    min-height: 1em;
-                    line-height: 1em;
-                    min-width: 1em;
-                    outline-color: transparent;
-                    border: none;
-                    display: inline-block;
-                    outline: 0;
-
-                    *
-                    {
-                        text-decoration: none;
-                    }
-                }
-
-                .ft-request-input
-                {
-                    display:none;
-                }
-
-                &.ft-request-input
-                {
-                    .ft-request-input
-                    {
-                        display: inline-block;
-                    }
-
-                    .ft-input
-                    {
-                        display: none;
-                    }
-                }
-
-                &:after
-                {
-                    clear: both;
-                    display: block;
-                }
+            min-height: 1rem;
+        }
+    }
+    &__commandline {
+        display: flex;
+        input {
+            flex: 1;
+            background: transparent;
+            color: inherit;
+            border: 0;
+            outline: 0;
+            font-family: inherit;
+            font-size: inherit;
+            margin: 0;
+            padding: 0;
+            &.is-password {
+                color: transparent;
             }
         }
     }
-}
-
-// --------------------------------------------------------------------------
-
-//  Colour themes
-//  =============
-
-//  Theme template
-.faketerminal-theme-template(
-
-    @colorHeader:                    #E6E5E5,
-    @colorHeaderButton:              #CCCCCC,
-    @colorHeaderButtonClose:         #D65551,
-    @colorHeaderButtonMinimise:      #D8DA51,
-    @colorHeaderButtonMaximise:      #62BF4E,
-    @colorScreenBackground:          rgba(0,0,0,0.7),
-    @colorScreenText:                #FFFFFF,
-    @colorContextCommentBackground:  none,
-    @colorContextCommentText:        #FFFF00,
-    @colorContextErrorBackground:    #FF0000,
-    @colorContextErrorText:          #FFFFFF,
-    @colorContextInfoBackground:     none,
-    @colorContextInfoText:           #33E333,
-    @colorContextQuestionBackground: none,
-    @colorContextQuestionText:       cyan,
-    @colorContextMuteBackground:     none,
-    @colorContextMuteText:           #CCCCCC
-
-) {
-
-    > .ft-header
-    {
-        background: @colorHeader;
-
-        ul.ft-header-buttons
-        {
-            li.ft-header-button
-            {
-                background-color: @colorHeaderButton;
-
-                &.ft-header-button-close
-                {
-                    background-color: @colorHeaderButtonClose;
-                    color: darken(@colorHeaderButtonClose, 20%);
-
-                    &:active
-                    {
-                        background-color: darken(@colorHeaderButtonClose, 10%);
-                    }
-                }
-
-                &.ft-header-button-minimise
-                {
-                    background-color: @colorHeaderButtonMinimise;
-                    color: darken(@colorHeaderButtonMinimise, 20%);
-                    line-height: 15px;
-
-                    &:active
-                    {
-                        background-color: darken(@colorHeaderButtonMinimise, 10%);
-                    }
-                }
-
-                &.ft-header-button-maximise
-                {
-                    background-color: @colorHeaderButtonMaximise;
-                    color: darken(@colorHeaderButtonMaximise, 20%);
-
-                    &:active
-                    {
-                        background-color: darken(@colorHeaderButtonMaximise, 10%);
-                    }
-                }
-            }
+    &__prompt {
+        display: inline-block;
+        padding-right: 0.5rem;
+    }
+    .color {
+        &--info {
+            color: @ft-info-text-color;
+            background: @ft-info-background-color;
+        }
+        &--error {
+            color: @ft-error-text-color;
+            background: @ft-error-background-color;
+        }
+        &--comment {
+            color: @ft-comment-text-color;
+            background: @ft-comment-background-color;
+        }
+        &--question {
+            color: @ft-question-text-color;
+            background: @ft-question-background-color;
+        }
+        &--muted {
+            color: @ft-muted-text-color;
+            background: @ft-muted-background-color;
+        }
+        &--line {
+            border-top: 1px dashed @ft-text-color;
+            opacity: 0.5;
+            margin-top: 1rem;
+            margin-bottom: 1rem;
+            display: block;
+            width: 100%;
         }
     }
-
-    > ul
-    {
-        background: @colorScreenBackground;
-        color: @colorScreenText;
-
-        li
-        {
-            .ft-comment
-            {
-                background: @colorContextCommentBackground;
-                color: @colorContextCommentText;
-            }
-
-            .ft-error
-            {
-                background: @colorContextErrorBackground;
-                color: @colorContextErrorText;
-            }
-
-            .ft-info
-            {
-                background: @colorContextInfoBackground;
-                color: @colorContextInfoText;
-            }
-
-            .ft-question
-            {
-                background: @colorContextQuestionBackground;
-                color: @colorContextQuestionText;
-            }
-
-            .ft-mute
-            {
-                background: @colorContextMuteBackground;
-                color: @colorContextMuteText;
-            }
-        }
-    }
-}
-
-//  Default theme
-.faketerminal-theme-default
-{
-    .faketerminal-theme-template();
 }

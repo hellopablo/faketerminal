@@ -1,9 +1,9 @@
 /**
- * The "clear" command
+ * The "whoami" command
  * @param  {window.FakeTerminal} instance The instance of FakeTerminal
  * @return {Object}
  */
-window.FakeTerminal.command.clear = function (instance) {
+window.FakeTerminal.command.whoami = function (instance) {
 
     //  Extend the base command
     window.FakeTerminal.command.apply(this, arguments);
@@ -22,7 +22,7 @@ window.FakeTerminal.command.clear = function (instance) {
      */
     base.info = function () {
         return {
-            description: 'Clears the screen'
+            description: 'Prints the user\'s username to standard output'
         };
     };
 
@@ -33,7 +33,7 @@ window.FakeTerminal.command.clear = function (instance) {
      * @return {Object} A promise which will be resolved when the command completes
      */
     base.execute = function () {
-        instance.output.clear();
+        instance.output.write(instance.options.username);
         base.deferred.resolve();
         return base.deferred.promise();
     };
