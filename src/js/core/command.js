@@ -2,13 +2,12 @@
  * The base command object, commands should extend this object
  * @return {Object}
  */
-window.FakeTerminal.command._base = function (instance) {
+window.FakeTerminal.command = function (instance) {
 
     /**
-     * To avoid scope issues, use 'base' instead of 'this' to reference
-     * this class from internal events and functions.
+     * Avoid scope issues by using `base` instead of `this`
+     * @type {Object}
      */
-
     var base = this;
 
     // --------------------------------------------------------------------------
@@ -36,10 +35,9 @@ window.FakeTerminal.command._base = function (instance) {
 
     /**
      * This method is called when fake terminal encounters the command which this class represents
-     * @param  {Array} userArgs An array of arguments passed by the user
-     * @return {Object}          An array of lines to render to the screen
+     * @return {Object} A promise which will be resolved when the command completes
      */
-    base.execute = function (userArgs) {
+    base.execute = function () {
         base.deferred.resolve();
         return base.deferred.promise();
     };

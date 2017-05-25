@@ -34,22 +34,22 @@ The following options are available to you:
 ```
 {
     //  The user's username
-    'username': 'root',
+    username: 'root',
 
     //  The hostname
-    'hostname': window.location.host,
+    hostname: window.location.host,
 
     //  How many history items to save
-    'history': 1000,
+    history: 1000,
 
     //  The prompt pattern
-    'prompt': '[%username%@%hostname%: %cwd%] ',
+    prompt: '[%username%@%hostname%: %cwd%] ',
 
     //  Any commands to run on "login"
-    'login': null,
+    login: null,
 
     //  The user's current working directory
-    'cwd': '~'
+    cwd: '~'
 }
 ```
 
@@ -59,7 +59,75 @@ The following options are available to you:
 
 ## Adding Commands
 
-> @todo - write this part of the docs
+Commands exist within the `window.FakeTerminal` namespace and must extend `window.FakeTerminal.command`. Commands are comprised of 3 main methods: `execute()`, `info()` and `terminate()`.
+
+### `execute()`
+
+Called when the command is executed. The parent class contains a Deferred object (at `base.deferred`) which should be resolved, or rejected, when the command has finished executing.  
+
+Note that user input will be disabled while a command is running (unless explicitly requested by the command using the `instance.input.request()` method).
+
+The command will be passed any arguments as parameters; arguments are deliminated by a space so, for example: `mycommand foo bar` will receive `foo` and `bar` as parameters one and two.
+
+### `info()`
+
+This method returns information about the command which is used by things such as the `history` command. It can contain the following properties:
+
+- `private` - Whether the command should be reported by the `help`
+- `description` - A brief description of the command for use within `help`
+
+
+### `terminate()`
+
+Called when the command must be terminated early (e.g. when the user pressed ctrl+C). This method will reject the base deferred promise and provides an opportunity for the command to clean up or terminate any processes.
+
+
+
+### Sample Command
+
+```
+window.FakeTerminal.command.myCommand = function (instance) {
+
+    //  Extend the base command
+    window.FakeTerminal.command.apply(this, arguments);
+
+    var base = this;
+
+    base.info = function () {
+        return {
+            private: false,
+            description: 'This command doesn\'t do anything terribly exciting'
+        };
+    };
+
+    base.execute = function (foo, bar) {
+        instance.output.write('The value of foo is: ' + foo);
+        instance.output.write('The value of bar is: ' + bar);
+        base.deferred.resolve();
+        return base.deferred.promise();
+    };
+
+    return base;
+};
+```
+
+
+
+## Requesting user input
+
+At any point in your commands you can request user input in any of the following ways:
+
+```
+instance.request()
+instance.requestBool()
+instance.requestPassword()
+```
+
+All of the above will return a promise which is resolved when the user hits the Enter key. The value will be passed into callback as the only parameter.
+
+In the case of `requestBool()` the promise will be resolved or rejected depending on the user's response, a resolve for a truthy response, rejected for a non-truthy response.
+
+`requestPassword()` behaves identically to `request()` but does not show the type response, nor does it print it to the output.
 
 
 ## Colouring Output
@@ -73,6 +141,22 @@ You can colour the output (including the prompt) by wrapping text in any of the 
 <question></question>
 <muted></muted>
 ```
+
+In addition, the following tag will draw a full width horizontal line across the screen
+
+```
+<line></line>
+```
+
+
+## Events
+
+FakeTerminal fires the following events:
+
+- `ft:init (<instance>)` - fired just as an instance is created
+- `ft:ready (<instance))` - fired once the instance is ready, but before any commands have been executed
+- `ft:command (<instance>, <command>)` - fired after user input be that a command or the response to a request for input 
+- `ft:destroy (<instance>)` - fired when the instance destroys itself
 
 
 ## How to Contribute
@@ -105,7 +189,6 @@ All the Less and JS files will be watched for changes, and compiled if necessary
 
 ### @todo
 
-- [ ] Complete this README.md
 - [ ] Support a virtual file system
-- [ ] Support for user input
 - [ ] Draggable window
+- [ ] Some form of `sudo` support

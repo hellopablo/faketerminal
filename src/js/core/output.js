@@ -1,21 +1,44 @@
+/**
+ * The output service
+ * @return {Object}
+ */
 window.FakeTerminal.output = function (instance) {
 
+    /**
+     * Avoid scope issues by using `base` instead of `this`
+     * @type {Object}
+     */
     var base = this;
 
     // --------------------------------------------------------------------------
 
-    base.screen = null;
+    /**
+     * The screen element
+     * @type {Object}
+     */
+    base.$screen = null;
 
     // --------------------------------------------------------------------------
 
+    /**
+     * Constructs window.FakeTerminal.output
+     * @returns {Object}
+     * @private
+     */
     base.__construct = function () {
-        base.screen = $('<div>').addClass('faketerminal__screen');
-        instance.$el.append(base.screen);
+        base.$screen = $('<div>').addClass('faketerminal__screen');
+        instance.$el.append(base.$screen);
         return base;
     };
 
     // --------------------------------------------------------------------------
 
+    /**
+     * Writes a line to base.$screen
+     * @param   {String}  line   The line to write
+     * @param   {Boolean} prompt Whether to include the prompt element
+     * @returns {Object}         A reference to the class, for chaining
+     */
     base.write = function (line, prompt) {
 
         var $line = $('<div>').addClass('faketerminal__screen__line');
@@ -35,15 +58,20 @@ window.FakeTerminal.output = function (instance) {
         line = line.replace(/<div&nbsp;class="/g, '<div class="', line);
 
         $line.append(line);
-        base.screen.append($line);
+        base.$screen.append($line);
         instance.scrollToBottom();
         return base;
     };
 
     // --------------------------------------------------------------------------
 
+    /**
+     * Clears all items from base.$screens
+     * @returns {Object} A reference to the class, for chaining
+     */
     base.clear = function () {
-        base.screen.empty();
+        base.$screen.empty();
+        return base;
     };
 
     // --------------------------------------------------------------------------

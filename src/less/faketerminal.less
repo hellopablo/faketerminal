@@ -49,6 +49,9 @@
             font-size: inherit;
             margin: 0;
             padding: 0;
+            &.is-password {
+                color: transparent;
+            }
         }
     }
     &__prompt {
@@ -75,6 +78,14 @@
         &--muted {
             color: @ft-muted-text-color;
             background: @ft-muted-background-color;
+        }
+        &--line {
+            border-top: 1px dashed @ft-text-color;
+            opacity: 0.5;
+            margin-top: 1rem;
+            margin-bottom: 1rem;
+            display: block;
+            width: 100%;
         }
     }
 }

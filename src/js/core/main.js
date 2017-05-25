@@ -7,10 +7,9 @@
 window.FakeTerminal.main = function (el, options) {
 
     /**
-     * To avoid scope issues, use 'base' instead of 'this' to reference
-     * this class from internal events and functions.
+     * Avoid scope issues by using `base` instead of `this`
+     * @type {Object}
      */
-
     var base = this;
     if (!jQuery) {
         throw 'FakeTerminal: jQuery required';
@@ -18,35 +17,69 @@ window.FakeTerminal.main = function (el, options) {
         var $ = jQuery;
     }
 
-    // Access to jQuery and DOM versions of element
+    /**
+     * jQuery version of the element
+     * @type {jQuery}
+     */
     base.$el = $(el);
-    base.el  = el;
 
-    // --------------------------------------------------------------------------
+    /**
+     * The original HTML of the element prior to initialisation (so we can restore the original terminal)
+     * @type {string}
+     */
+    base.originalHtml = '';
 
-    //  Field variables
-    base.originalHtml     = '';
-    base.existingText     = [];
+    /**
+     * Any existing items within the element
+     * @type {Array}
+     */
+    base.existingText = [];
+
+    /**
+     * References to the currently executing command's instance and deferred object
+     * @type {Object}
+     */
     base.executingCommand = {
         'instance': null,
         'deferred': null
     };
 
-    //  Easier to reference keyCodes
+    /**
+     * Map of keyCodes
+     * @type {Object}
+     */
     base.keymap = {
         ENTER: 13,
-        UP: 38,
-        DOWN: 40,
-        C: 67,
-        D: 68,
-        U: 85
+        UP:    38,
+        DOWN:  40,
+        C:     67,
+        D:     68,
+        U:     85
     };
 
-    //  Core classes
-    base.output     = null;
-    base.input      = null;
+    /**
+     * The output service
+     * @type {window.FakeTerminal.output}
+     */
+    base.output = null;
+
+    /**
+     * The input service
+     * @type {window.FakeTerminal.input}
+     */
+    base.input = null;
+
+    /**
+     * The filesystem service
+     * @type {window.FakeTerminal.filesystem}
+     */
     base.filesystem = null;
-    base.history    = null;
+
+    /**
+     * The history service
+     * @type {window.FakeTerminal.history}
+     */
+    base.history = null;
 
     // --------------------------------------------------------------------------
 
@@ -56,12 +89,14 @@ window.FakeTerminal.main = function (el, options) {
      */
     base.__construct = function () {
 
+        base.$el.trigger('ft:init', [base]);
+
         //  Merge the options together
         base.options = $.extend({}, window.FakeTerminal.defaultOptions, options);
 
         //  Copy the original markup so we can destroy nicely
-        base.originalHtml = base.el.outerHTML;
-        base.existingText = base.el.innerHTML ? base.el.innerHTML.split('\n') : [];
+        base.originalHtml = base.$el.get(0).outerHTML;
+        base.existingText = base.$el.get(0).innerHTML ? base.$el.get(0).innerHTML.split('\n') : [];
 
         //  Prepare the element
         base.$el
@@ -77,13 +112,23 @@ window.FakeTerminal.main = function (el, options) {
         base.filesystem = new window.FakeTerminal.filesystem(base);
         base.history    = new window.FakeTerminal.history(base);
 
-        //  Add the existing content
+        /**
+         * Add the existing content; if there is more than one line of content skip the first and last line
+         * This is so that we can layout the HTML correctly, i.e contents on a new line
+         */
         for (var i = 0, j = base.existingText.length; i < j; i++) {
+            if (base.existingText.length > 1 && i === 0) {
+                continue;/**/
+            } else if (base.existingText.length > 1 && i === base.existingText.length - 1) {
+                continue;
+            }
             base.output.write($.trim(base.existingText[i]));
         }
 
         //  Focus the input
         base.input.focus();
+
+        base.$el.trigger('ft:ready', [base]);
 
         //  Run the login command, if there is one
         if (base.options.login) {
@@ -104,9 +149,9 @@ window.FakeTerminal.main = function (el, options) {
             })
             .on('keyup', function (e) {
                 if (e.ctrlKey && e.which === base.keymap.C) {
-                    base.input.ctrl(base.keymap.C);
+                    base.input.ctrlC();
                 } else if (e.ctrlKey && e.which === base.keymap.U) {
-                    base.input.ctrl(base.keymap.U);
+                    base.input.ctrlU();
                 }
             });
     };
@@ -168,7 +213,12 @@ window.FakeTerminal.main = function (el, options) {
 
     // --------------------------------------------------------------------------
 
-    base.colorize = function(line) {
+    /**
+     * Replaces references to <info> etc with spans which can be colourised
+     * @param {String} line The line to colorize
+     * @returns {String}
+     */
+    base.colorize = function (line) {
         line = line.replace(/<([a-zA-Z].+?)>/g, '<span class="color--$1">', line);
         line = line.replace(/<\/([a-zA-Z].+)>/g, '</span>', line);
         return line;
@@ -176,8 +226,13 @@ window.FakeTerminal.main = function (el, options) {
 
     // --------------------------------------------------------------------------
 
+    /**
+     * Scroll to the bottom of the terminal window
+     * @returns {Object} A reference to the class, for chaining
+     */
     base.scrollToBottom = function () {
         base.$el.scrollTop(base.$el.get(0).scrollHeight);
+        return base;
     };
 
     // --------------------------------------------------------------------------
@@ -188,6 +243,7 @@ window.FakeTerminal.main = function (el, options) {
      */
     base.destroy = function () {
         base.$el.replaceWith($(base.originalHtml));
+        base.$el.trigger('ft:destroy', [base]);
         return base;
     };
 

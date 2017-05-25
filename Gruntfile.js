@@ -25,7 +25,7 @@ module.exports = function (grunt) {
                         'src/js/core/input.js',
                         'src/js/core/filesystem.js',
                         'src/js/core/history.js',
-                        'src/js/core/command.base.js',
+                        'src/js/core/command.js',
                         'src/js/commands/*.js',
                         'src/js/core/jquery.js'
                     ]
@@ -45,7 +45,7 @@ module.exports = function (grunt) {
                         'src/js/core/input.js',
                         'src/js/core/filesystem.js',
                         'src/js/core/history.js',
-                        'src/js/core/command.base.js',
+                        'src/js/core/command.js',
                         'src/js/commands/*.js',
                         'src/js/core/jquery.js'
                     ]

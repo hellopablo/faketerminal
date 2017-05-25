@@ -1,16 +1,16 @@
 /**
  * The "sleep" command
- * @param  {Object} instance The instance of FakeTerminal
+ * @param  {window.FakeTerminal} instance The instance of FakeTerminal
  * @return {Object}
  */
 window.FakeTerminal.command.sleep = function (instance) {
 
     //  Extend the base command
-    window.FakeTerminal.command._base.apply(this, arguments);
+    window.FakeTerminal.command.apply(this, arguments);
 
     /**
-     * To avoid scope issues, use 'base' instead of 'this' to reference
-     * this class from internal events and functions.
+     * Avoid scope issues by using `base` instead of `this`
+     * @type {Object}
      */
     var base = this;
 
@@ -33,9 +33,8 @@ window.FakeTerminal.command.sleep = function (instance) {
     // --------------------------------------------------------------------------
 
     /**
-     * This method is called when FakeTerminal encounters the command which this
-     * class represents
-     * @return {Object}
+     * Executes the command
+     * @return {Object} A promise which will be resolved when the command completes
      */
     base.execute = function () {
 

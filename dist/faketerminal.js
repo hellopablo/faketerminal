@@ -34,8 +34,8 @@ window.FakeTerminal.defaultOptions = {
  */
 window.FakeTerminal.main = function(el, options) {
     /**
-     * To avoid scope issues, use 'base' instead of 'this' to reference
-     * this class from internal events and functions.
+     * Avoid scope issues by using `base` instead of `this`
+     * @type {Object}
      */
     var base = this;
     if (!jQuery) {
@@ -43,18 +43,33 @@ window.FakeTerminal.main = function(el, options) {
     } else {
         var $ = jQuery;
     }
-    // Access to jQuery and DOM versions of element
+    /**
+     * jQuery version of the element
+     * @type {jQuery}
+     */
     base.$el = $(el);
-    base.el = el;
-    // --------------------------------------------------------------------------
-    //  Field variables
+    /**
+     * The original HTML of the element prior to initialisation (so we can restore the original terminal)
+     * @type {string}
+     */
     base.originalHtml = "";
+    /**
+     * Any existing items within the element
+     * @type {Array}
+     */
     base.existingText = [];
+    /**
+     * References to the currently executing command's instance and deferred object
+     * @type {Object}
+     */
     base.executingCommand = {
         instance: null,
         deferred: null
     };
-    //  Easier to reference keyCodes
+    /**
+     * Map of keyCodes
+     * @type {Object}
+     */
     base.keymap = {
         ENTER: 13,
         UP: 38,
@@ -63,10 +78,25 @@ window.FakeTerminal.main = function(el, options) {
         D: 68,
         U: 85
     };
-    //  Core classes
+    /**
+     * The output service
+     * @type {window.FakeTerminal.output}
+     */
     base.output = null;
+    /**
+     * The input service
+     * @type {window.FakeTerminal.input}
+     */
     base.input = null;
+    /**
+     * The filesystem service
+     * @type {window.FakeTerminal.filesystem}
+     */
     base.filesystem = null;
+    /**
+     * The history service
+     * @type {window.FakeTerminal.history}
+     */
     base.history = null;
     // --------------------------------------------------------------------------
     /**
@@ -74,11 +104,12 @@ window.FakeTerminal.main = function(el, options) {
      * @return {void}
      */
     base.__construct = function() {
+        base.$el.trigger("ft:init", [ base ]);
         //  Merge the options together
         base.options = $.extend({}, window.FakeTerminal.defaultOptions, options);
         //  Copy the original markup so we can destroy nicely
-        base.originalHtml = base.el.outerHTML;
-        base.existingText = base.el.innerHTML ? base.el.innerHTML.split("\n") : [];
+        base.originalHtml = base.$el.get(0).outerHTML;
+        base.existingText = base.$el.get(0).innerHTML ? base.$el.get(0).innerHTML.split("\n") : [];
         //  Prepare the element
         base.$el.addClass("faketerminal").empty();
         //  Bind listeners
@@ -88,12 +119,21 @@ window.FakeTerminal.main = function(el, options) {
         base.input = new window.FakeTerminal.input(base);
         base.filesystem = new window.FakeTerminal.filesystem(base);
         base.history = new window.FakeTerminal.history(base);
-        //  Add the existing content
+        /**
+         * Add the existing content; if there is more than one line of content skip the first and last line
+         * This is so that we can layout the HTML correctly, i.e contents on a new line
+         */
         for (var i = 0, j = base.existingText.length; i < j; i++) {
+            if (base.existingText.length > 1 && i === 0) {
+                continue;
+            } else if (base.existingText.length > 1 && i === base.existingText.length - 1) {
+                continue;
+            }
             base.output.write($.trim(base.existingText[i]));
         }
         //  Focus the input
         base.input.focus();
+        base.$el.trigger("ft:ready", [ base ]);
         //  Run the login command, if there is one
         if (base.options.login) {
             base.exec(base.options.login);
@@ -109,9 +149,9 @@ window.FakeTerminal.main = function(el, options) {
             base.input.focus();
         }).on("keyup", function(e) {
             if (e.ctrlKey && e.which === base.keymap.C) {
-                base.input.ctrl(base.keymap.C);
+                base.input.ctrlC();
             } else if (e.ctrlKey && e.which === base.keymap.U) {
-                base.input.ctrl(base.keymap.U);
+                base.input.ctrlU();
             }
         });
     };
@@ -160,14 +200,24 @@ window.FakeTerminal.main = function(el, options) {
         return base.colorize(text);
     };
     // --------------------------------------------------------------------------
+    /**
+     * Replaces references to <info> etc with spans which can be colourised
+     * @param {String} line The line to colorize
+     * @returns {String}
+     */
     base.colorize = function(line) {
         line = line.replace(/<([a-zA-Z].+?)>/g, '<span class="color--$1">', line);
         line = line.replace(/<\/([a-zA-Z].+)>/g, "</span>", line);
         return line;
     };
     // --------------------------------------------------------------------------
+    /**
+     * Scroll to the bottom of the terminal window
+     * @returns {Object} A reference to the class, for chaining
+     */
     base.scrollToBottom = function() {
         base.$el.scrollTop(base.$el.get(0).scrollHeight);
+        return base;
     };
     // --------------------------------------------------------------------------
     /**
@@ -176,6 +226,7 @@ window.FakeTerminal.main = function(el, options) {
      */
     base.destroy = function() {
         base.$el.replaceWith($(base.originalHtml));
+        base.$el.trigger("ft:destroy", [ base ]);
         return base;
     };
     // --------------------------------------------------------------------------
@@ -243,17 +294,40 @@ window.FakeTerminal.main = function(el, options) {
     base.__construct();
 };
 
+/**
+ * The output service
+ * @return {Object}
+ */
 window.FakeTerminal.output = function(instance) {
+    /**
+     * Avoid scope issues by using `base` instead of `this`
+     * @type {Object}
+     */
     var base = this;
     // --------------------------------------------------------------------------
-    base.screen = null;
+    /**
+     * The screen element
+     * @type {Object}
+     */
+    base.$screen = null;
     // --------------------------------------------------------------------------
+    /**
+     * Constructs window.FakeTerminal.output
+     * @returns {Object}
+     * @private
+     */
     base.__construct = function() {
-        base.screen = $("<div>").addClass("faketerminal__screen");
-        instance.$el.append(base.screen);
+        base.$screen = $("<div>").addClass("faketerminal__screen");
+        instance.$el.append(base.$screen);
         return base;
     };
     // --------------------------------------------------------------------------
+    /**
+     * Writes a line to base.$screen
+     * @param   {String}  line   The line to write
+     * @param   {Boolean} prompt Whether to include the prompt element
+     * @returns {Object}         A reference to the class, for chaining
+     */
     base.write = function(line, prompt) {
         var $line = $("<div>").addClass("faketerminal__screen__line");
         if (prompt) {
@@ -265,26 +339,62 @@ window.FakeTerminal.output = function(instance) {
         line = line.replace(/<span&nbsp;class="/g, '<span class="', line);
         line = line.replace(/<div&nbsp;class="/g, '<div class="', line);
         $line.append(line);
-        base.screen.append($line);
+        base.$screen.append($line);
         instance.scrollToBottom();
         return base;
     };
     // --------------------------------------------------------------------------
+    /**
+     * Clears all items from base.$screens
+     * @returns {Object} A reference to the class, for chaining
+     */
     base.clear = function() {
-        base.screen.empty();
+        base.$screen.empty();
+        return base;
     };
     // --------------------------------------------------------------------------
     return base.__construct();
 };
 
+/**
+ * The input service
+ * @return {Object}
+ */
 window.FakeTerminal.input = function(instance) {
+    /**
+     * Avoid scope issues by using `base` instead of `this`
+     * @type {Object}
+     */
     var base = this;
     // --------------------------------------------------------------------------
+    /**
+     * The input box the user can type into
+     * @type {Object}
+     */
     base.$input = null;
+    /**
+     * The input box the user can type into when requesting input
+     * @type {Object}
+     */
+    base.$request = null;
+    /**
+     * The command line container
+     * @type {Object}
+     */
     base.$commandLine = null;
+    /**
+     * The input request container
+     * @type {Object}
+     */
+    base.$inputRequest = null;
     // --------------------------------------------------------------------------
+    /**
+     * Constructs window.FakeTerminal.input
+     * @returns {Object}
+     * @private
+     */
     base.__construct = function() {
-        base.$prompt = $("<div>").addClass("faketerminal__prompt").html(instance.getPrompt());
+        base.$prompt = $("<div>").addClass("faketerminal__prompt").attr("autocorrect", "off").attr("autocapitalize", "none").html(instance.getPrompt());
         base.$input = $("<input>").on("keyup", function(e) {
             switch (e.which) {
               case instance.keymap.ENTER:
@@ -301,44 +411,170 @@ window.FakeTerminal.input = function(instance) {
             }
         });
         base.$commandLine = $("<div>").addClass("faketerminal__commandline");
-        instance.$el.append(base.$commandLine.append(base.$prompt).append(base.$input));
+        // --------------------------------------------------------------------------
+        base.$request = $("<input>");
+        base.$inputRequest = $("<div>").addClass("faketerminal__commandline faketerminal__commandline--request");
+        // --------------------------------------------------------------------------
+        instance.$el.append(base.$commandLine.append(base.$prompt).append(base.$input)).append(base.$inputRequest.append(base.$request));
+        // --------------------------------------------------------------------------
+        base.enable();
+        base.disableRequest();
         return base;
     };
     // --------------------------------------------------------------------------
+    /**
+     * Reads the value of base.$input and clears immediately after
+     * @returns {String}
+     */
     base.read = function() {
         var value = base.$input.val();
         base.$input.val("");
         return value;
     };
     // --------------------------------------------------------------------------
+    /**
+     * Requests user input from the user
+     * @param {String} type The type of request; boolean
+     * @returns {$.Deferred}
+     */
+    base.request = function(type) {
+        type = type || "TEXT";
+        type = type.toUpperCase();
+        switch (type) {
+          case "TEXT":
+            return base.requestText();
+            break;
+
+          case "BOOL":
+          case "BOOLEAN":
+            return base.requestBool();
+            break;
+
+          case "PASSWORD":
+            return base.requestPassword();
+            break;
+
+          default:
+            throw "Invalid request type";
+            break;
+        }
+    };
+    // --------------------------------------------------------------------------
+    /**
+     * Requests text input from the user
+     * @param {Boolean} muteOutput Whether to print what the user typed to the output or not
+     * @returns {$.Deferred}
+     */
+    base.requestText = function(muteOutput) {
+        var deferred = new $.Deferred();
+        base.enableRequest();
+        base.$request.on("keyup", function(e) {
+            if (e.which === instance.keymap.ENTER) {
+                var value = $.trim(base.$request.val());
+                if (!muteOutput) {
+                    instance.output.write(value);
+                }
+                deferred.resolve(value);
+                instance.$el.trigger("ft:command", [ instance, value ]);
+            }
+        });
+        deferred.always(function() {
+            base.disableRequest();
+            base.$request.off("keyup");
+        });
+        return deferred.promise();
+    };
+    // --------------------------------------------------------------------------
+    /**
+     * Requests a boolean input from the user
+     * @returns {$.Deferred}
+     */
+    base.requestBool = function() {
+        var deferred = new $.Deferred();
+        base.requestText().done(function(value) {
+            value = $.trim(String(value).toLowerCase());
+            if ([ "1", "true", "yes", "y", "ok" ].indexOf(value) !== -1) {
+                deferred.resolve();
+            } else {
+                deferred.reject();
+            }
+        });
+        return deferred.promise();
+    };
+    // --------------------------------------------------------------------------
+    /**
+     * Requests text input from the user, but hides it from screen and does not print to the output
+     * @returns {$.Deferred}
+     */
+    base.requestPassword = function() {
+        var deferred = new $.Deferred();
+        base.$request.addClass("is-password");
+        instance.output.write("Password:");
+        base.requestText(true).done(function(value) {
+            base.$request.removeClass("is-password");
+            deferred.resolve(value);
+        });
+        return deferred.promise();
+    };
+    // --------------------------------------------------------------------------
+    /**
+     * Sets the value of base.$input
+     * @param {String} command The command to set
+     */
     base.set = function(command) {
         base.$input.val(command);
     };
     // --------------------------------------------------------------------------
+    /**
+     * Focuses base.$input
+     * @returns {Object}
+     */
     base.focus = function() {
-        base.$input.focus();
+        if (base.$input.is(":visible")) {
+            base.$input.focus();
+        } else if (base.$request.is(":visible")) {
+            base.$request.focus();
+        }
+        return base;
     };
     // --------------------------------------------------------------------------
+    /**
+     * Shows base.$commandLine
+     * @returns {Object}
+     */
     base.enable = function() {
         base.$commandLine.show();
+        base.focus();
         return base;
     };
     // --------------------------------------------------------------------------
+    /**
+     * Hides base.$commandLine
+     * @returns {Object}
+     */
     base.disable = function() {
         base.$commandLine.hide();
+        base.$input.val("");
         return base;
     };
     // --------------------------------------------------------------------------
-    base.ctrl = function(letter) {
-        switch (letter) {
-          case instance.keymap.C:
-            base.ctrlC();
-            break;
-
-          case instance.keymap.U:
-            base.ctrlU();
-            break;
-        }
+    /**
+     * Shows base.$inputRequest
+     * @returns {Object}
+     */
+    base.enableRequest = function() {
+        base.$inputRequest.show();
+        base.focus();
+        return base;
+    };
+    // --------------------------------------------------------------------------
+    /**
+     * Hides base.$inputRequest
+     * @returns {Object}
+     */
+    base.disableRequest = function() {
+        base.$inputRequest.hide();
+        base.$request.val("");
         return base;
     };
     // --------------------------------------------------------------------------
@@ -365,6 +601,7 @@ window.FakeTerminal.input = function(instance) {
             instance.output.write("", true);
         }
         //  Focus the command prompt
+        base.disableRequest();
         base.focus();
         return base;
     };
@@ -381,9 +618,22 @@ window.FakeTerminal.input = function(instance) {
     return base.__construct();
 };
 
+/**
+ * The filesystem service
+ * @return {Object}
+ */
 window.FakeTerminal.filesystem = function(instance) {
+    /**
+     * Avoid scope issues by using `base` instead of `this`
+     * @type {Object}
+     */
     var base = this;
     // --------------------------------------------------------------------------
+    /**
+     * Constructs window.FakeTerminal.filesystem
+     * @returns {Object}
+     * @private
+     */
     base.__construct = function() {
         return base;
     };
@@ -391,17 +641,46 @@ window.FakeTerminal.filesystem = function(instance) {
     return base.__construct();
 };
 
+/**
+ * The history service
+ * @return {Object}
+ */
 window.FakeTerminal.history = function(instance) {
+    /**
+     * Avoid scope issues by using `base` instead of `this`
+     * @type {Object}
+     */
     var base = this;
     // --------------------------------------------------------------------------
+    /**
+     * Tracks the number of previously executed commands
+     * @type {number}
+     */
     base.counter = 0;
+    /**
+     * An array of all the previously executed commands
+     * @type {Array}
+     */
     base.items = [];
+    /**
+     * Tracks the user's position when browsing items using the arrow keys
+     * @type {null}
+     */
     base.browseIndex = null;
     // --------------------------------------------------------------------------
+    /**
+     * Constructs window.FakeTerminal.history
+     * @returns {Object}
+     * @private
+     */
     base.__construct = function() {
         return base;
     };
     // --------------------------------------------------------------------------
+    /**
+     * Pushes a new command onto the history array
+     * @param {String} command The command which was executed
+     */
     base.push = function(command) {
         base.counter++;
         base.items.push({
@@ -464,10 +743,10 @@ window.FakeTerminal.history = function(instance) {
  * The base command object, commands should extend this object
  * @return {Object}
  */
-window.FakeTerminal.command._base = function(instance) {
+window.FakeTerminal.command = function(instance) {
     /**
-     * To avoid scope issues, use 'base' instead of 'this' to reference
-     * this class from internal events and functions.
+     * Avoid scope issues by using `base` instead of `this`
+     * @type {Object}
      */
     var base = this;
     // --------------------------------------------------------------------------
@@ -490,10 +769,9 @@ window.FakeTerminal.command._base = function(instance) {
     // --------------------------------------------------------------------------
     /**
      * This method is called when fake terminal encounters the command which this class represents
-     * @param  {Array} userArgs An array of arguments passed by the user
-     * @return {Object}          An array of lines to render to the screen
+     * @return {Object} A promise which will be resolved when the command completes
      */
-    base.execute = function(userArgs) {
+    base.execute = function() {
         base.deferred.resolve();
         return base.deferred.promise();
     };
@@ -508,15 +786,15 @@ window.FakeTerminal.command._base = function(instance) {
 
 /**
  * The "clear" command
- * @param  {Object} instance The instance of FakeTerminal
+ * @param  {window.FakeTerminal} instance The instance of FakeTerminal
  * @return {Object}
  */
 window.FakeTerminal.command.clear = function(instance) {
     //  Extend the base command
-    window.FakeTerminal.command._base.apply(this, arguments);
+    window.FakeTerminal.command.apply(this, arguments);
     /**
-     * To avoid scope issues, use 'base' instead of 'this' to reference
-     * this class from internal events and functions.
+     * Avoid scope issues by using `base` instead of `this`
+     * @type {Object}
      */
     var base = this;
     // --------------------------------------------------------------------------
@@ -531,9 +809,8 @@ window.FakeTerminal.command.clear = function(instance) {
     };
     // --------------------------------------------------------------------------
     /**
-     * This method is called when FakeTerminal encounters the command which this
-     * class represents
-     * @return {Object}
+     * Executes the command
+     * @return {Object} A promise which will be resolved when the command completes
      */
     base.execute = function() {
         instance.output.clear();
@@ -546,15 +823,15 @@ window.FakeTerminal.command.clear = function(instance) {
 
 /**
  * The "echo" command
- * @param  {Object} instance The instance of FakeTerminal
+ * @param  {window.FakeTerminal} instance The instance of FakeTerminal
  * @return {Object}
  */
 window.FakeTerminal.command.echo = function(instance) {
     //  Extend the base command
-    window.FakeTerminal.command._base.apply(this, arguments);
+    window.FakeTerminal.command.apply(this, arguments);
     /**
-     * To avoid scope issues, use 'base' instead of 'this' to reference
-     * this class from internal events and functions.
+     * Avoid scope issues by using `base` instead of `this`
+     * @type {Object}
      */
     var base = this;
     // --------------------------------------------------------------------------
@@ -569,9 +846,8 @@ window.FakeTerminal.command.echo = function(instance) {
     };
     // --------------------------------------------------------------------------
     /**
-     * This method is called when FakeTerminal encounters the command which this
-     * class represents
-     * @return {Object}
+     * Executes the command
+     * @return {Object} A promise which will be resolved when the command completes
      */
     base.execute = function() {
         var args = $.makeArray(arguments);
@@ -597,15 +873,15 @@ window.FakeTerminal.command.echo = function(instance) {
 
 /**
  * The "help" command
- * @param  {Object} instance The instance of FakeTerminal
+ * @param  {window.FakeTerminal} instance The instance of FakeTerminal
  * @return {Object}
  */
 window.FakeTerminal.command.help = function(instance) {
     //  Extend the base command
-    window.FakeTerminal.command._base.apply(this, arguments);
+    window.FakeTerminal.command.apply(this, arguments);
     /**
-     * To avoid scope issues, use 'base' instead of 'this' to reference
-     * this class from internal events and functions.
+     * Avoid scope issues by using `base` instead of `this`
+     * @type {Object}
      */
     var base = this;
     // --------------------------------------------------------------------------
@@ -620,9 +896,8 @@ window.FakeTerminal.command.help = function(instance) {
     };
     // --------------------------------------------------------------------------
     /**
-     * This method is called when FakeTerminal encounters the command which this
-     * class represents
-     * @return {Object}
+     * Executes the command
+     * @return {Object} A promise which will be resolved when the command completes
      */
     base.execute = function() {
         var returnVal = [];
@@ -688,15 +963,15 @@ window.FakeTerminal.command.man = function() {
 
 /**
  * The "history" command
- * @param  {Object} instance The instance of FakeTerminal
+ * @param  {window.FakeTerminal} instance The instance of FakeTerminal
  * @return {Object}
  */
 window.FakeTerminal.command.history = function(instance) {
     //  Extend the base command
-    window.FakeTerminal.command._base.apply(this, arguments);
+    window.FakeTerminal.command.apply(this, arguments);
     /**
-     * To avoid scope issues, use 'base' instead of 'this' to reference
-     * this class from internal events and functions.
+     * Avoid scope issues by using `base` instead of `this`
+     * @type {Object}
      */
     var base = this;
     // --------------------------------------------------------------------------
@@ -711,9 +986,8 @@ window.FakeTerminal.command.history = function(instance) {
     };
     // --------------------------------------------------------------------------
     /**
-     * This method is called when FakeTerminal encounters the command which this
-     * class represents
-     * @return {Object}
+     * Executes the command
+     * @return {Object} A promise which will be resolved when the command completes
      */
     base.execute = function() {
         instance.output.write("  ");
@@ -730,15 +1004,15 @@ window.FakeTerminal.command.history = function(instance) {
 
 /**
  * The "sleep" command
- * @param  {Object} instance The instance of FakeTerminal
+ * @param  {window.FakeTerminal} instance The instance of FakeTerminal
  * @return {Object}
  */
 window.FakeTerminal.command.sleep = function(instance) {
     //  Extend the base command
-    window.FakeTerminal.command._base.apply(this, arguments);
+    window.FakeTerminal.command.apply(this, arguments);
     /**
-     * To avoid scope issues, use 'base' instead of 'this' to reference
-     * this class from internal events and functions.
+     * Avoid scope issues by using `base` instead of `this`
+     * @type {Object}
      */
     var base = this;
     // --------------------------------------------------------------------------
@@ -755,9 +1029,8 @@ window.FakeTerminal.command.sleep = function(instance) {
     };
     // --------------------------------------------------------------------------
     /**
-     * This method is called when FakeTerminal encounters the command which this
-     * class represents
-     * @return {Object}
+     * Executes the command
+     * @return {Object} A promise which will be resolved when the command completes
      */
     base.execute = function() {
         var duration = 0;
@@ -784,16 +1057,66 @@ window.FakeTerminal.command.sleep = function(instance) {
 };
 
 /**
+ * The "test" command
+ * @param  {window.FakeTerminal} instance The instance of FakeTerminal
+ * @return {Object}
+ */
+window.FakeTerminal.command.test = function(instance) {
+    //  Extend the base command
+    window.FakeTerminal.command.apply(this, arguments);
+    /**
+     * Avoid scope issues by using `base` instead of `this`
+     * @type {Object}
+     */
+    var base = this;
+    // --------------------------------------------------------------------------
+    /**
+     * Describes the command
+     * @return {Object}
+     */
+    base.info = function() {
+        return {
+            description: "Clears the screen"
+        };
+    };
+    // --------------------------------------------------------------------------
+    /**
+     * Executes the command
+     * @return {Object} A promise which will be resolved when the command completes
+     */
+    base.execute = function() {
+        instance.output.write("What is your name?");
+        instance.input.request().done(function(value) {
+            instance.output.write("Hi " + value + "!");
+            instance.output.write("Want to tell me a secret?");
+            instance.input.request("bool").done(function() {
+                instance.output.write("Nice one, go ahead, what is it?");
+                instance.input.request("password").done(function(value) {
+                    instance.output.write("Wow, juicy! I promise not to tell anyone about it");
+                    base.deferred.resolve();
+                });
+            }).fail(function() {
+                instance.output.write("OK, nevermind, many next time");
+                base.deferred.resolve();
+            });
+        });
+        return base.deferred.promise();
+    };
+    // --------------------------------------------------------------------------
+    return base;
+};
+
+/**
  * The "whoami" command
- * @param  {Object} instance The instance of FakeTerminal
+ * @param  {window.FakeTerminal} instance The instance of FakeTerminal
  * @return {Object}
  */
 window.FakeTerminal.command.whoami = function(instance) {
     //  Extend the base command
-    window.FakeTerminal.command._base.apply(this, arguments);
+    window.FakeTerminal.command.apply(this, arguments);
     /**
-     * To avoid scope issues, use 'base' instead of 'this' to reference
-     * this class from internal events and functions.
+     * Avoid scope issues by using `base` instead of `this`
+     * @type {Object}
      */
     var base = this;
     // --------------------------------------------------------------------------
@@ -808,9 +1131,8 @@ window.FakeTerminal.command.whoami = function(instance) {
     };
     // --------------------------------------------------------------------------
     /**
-     * This method is called when FakeTerminal encounters the command which this
-     * class represents
-     * @return {Object}
+     * Executes the command
+     * @return {Object} A promise which will be resolved when the command completes
      */
     base.execute = function() {
         instance.output.write(instance.options.username);

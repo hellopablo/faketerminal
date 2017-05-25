@@ -1,21 +1,52 @@
+/**
+ * The history service
+ * @return {Object}
+ */
 window.FakeTerminal.history = function (instance) {
 
+    /**
+     * Avoid scope issues by using `base` instead of `this`
+     * @type {Object}
+     */
     var base = this;
 
     // --------------------------------------------------------------------------
 
-    base.counter     = 0;
-    base.items       = [];
+    /**
+     * Tracks the number of previously executed commands
+     * @type {number}
+     */
+    base.counter = 0;
+
+    /**
+     * An array of all the previously executed commands
+     * @type {Array}
+     */
+    base.items = [];
+
+    /**
+     * Tracks the user's position when browsing items using the arrow keys
+     * @type {null}
+     */
     base.browseIndex = null;
 
     // --------------------------------------------------------------------------
 
+    /**
+     * Constructs window.FakeTerminal.history
+     * @returns {Object}
+     * @private
+     */
     base.__construct = function () {
         return base;
     };
 
     // --------------------------------------------------------------------------
 
+    /**
+     * Pushes a new command onto the history array
+     * @param {String} command The command which was executed
+     */
     base.push = function (command) {
         base.counter++;
         base.items.push({
