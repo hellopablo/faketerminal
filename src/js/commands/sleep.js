@@ -1,9 +1,9 @@
 /**
- * The "clear" command
+ * The "sleep" command
  * @param  {window.FakeTerminal} instance The instance of FakeTerminal
  * @return {Object}
  */
-window.FakeTerminal.command.clear = function (instance) {
+window.FakeTerminal.command.sleep = function (instance) {
 
     //  Extend the base command
     window.FakeTerminal.command.apply(this, arguments);
@@ -16,13 +16,17 @@ window.FakeTerminal.command.clear = function (instance) {
 
     // --------------------------------------------------------------------------
 
+    base.timeout = null;
+
+    // --------------------------------------------------------------------------
+
     /**
      * Describes the command
      * @return {Object}
      */
     base.info = function () {
         return {
-            description: 'Clears the screen'
+            description: 'Does nothing for a short while'
         };
     };
 
@@ -33,9 +37,29 @@ window.FakeTerminal.command.clear = function (instance) {
      * @return {Object} A promise which will be resolved when the command completes
      */
     base.execute = function () {
-        instance.output.clear();
-        base.deferred.resolve();
+
+        var duration = 0;
+        if (arguments.length) {
+            duration = parseInt(arguments[0]);
+        }
+        instance.output.write('Sleeping for ' + duration + ' seconds...');
+        base.timeout = setTimeout(function() {
+            instance.output.write('awake!');
+            base.deferred.resolve();
+        }, duration * 1000);
+
         return base.deferred.promise();
+    };
+
+    // --------------------------------------------------------------------------
+
+
+    /**
+     * Called if the command is terminated with CTL+C; useful for cleaning up
+     */
+    base.terminate = function() {
+        clearTimeout(base.timeout);
+        base.deferred.reject();
     };
 
     // --------------------------------------------------------------------------
