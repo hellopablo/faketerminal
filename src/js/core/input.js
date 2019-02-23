@@ -252,6 +252,7 @@ window.FakeTerminal.input = function (instance) {
     base.enable = function () {
         base.$commandLine.show();
         base.focus();
+        instance.scrollToBottom();
         return base;
     };
 
