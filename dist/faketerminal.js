@@ -545,6 +545,7 @@ window.FakeTerminal.input = function(instance) {
     base.enable = function() {
         base.$commandLine.show();
         base.focus();
+        instance.scrollToBottom();
         return base;
     };
     // --------------------------------------------------------------------------
@@ -1051,56 +1052,6 @@ window.FakeTerminal.command.sleep = function(instance) {
     base.terminate = function() {
         clearTimeout(base.timeout);
         base.deferred.reject();
-    };
-    // --------------------------------------------------------------------------
-    return base;
-};
-
-/**
- * The "test" command
- * @param  {window.FakeTerminal} instance The instance of FakeTerminal
- * @return {Object}
- */
-window.FakeTerminal.command.test = function(instance) {
-    //  Extend the base command
-    window.FakeTerminal.command.apply(this, arguments);
-    /**
-     * Avoid scope issues by using `base` instead of `this`
-     * @type {Object}
-     */
-    var base = this;
-    // --------------------------------------------------------------------------
-    /**
-     * Describes the command
-     * @return {Object}
-     */
-    base.info = function() {
-        return {
-            description: "Clears the screen"
-        };
-    };
-    // --------------------------------------------------------------------------
-    /**
-     * Executes the command
-     * @return {Object} A promise which will be resolved when the command completes
-     */
-    base.execute = function() {
-        instance.output.write("What is your name?");
-        instance.input.request().done(function(value) {
-            instance.output.write("Hi " + value + "!");
-            instance.output.write("Want to tell me a secret?");
-            instance.input.request("bool").done(function() {
-                instance.output.write("Nice one, go ahead, what is it?");
-                instance.input.request("password").done(function(value) {
-                    instance.output.write("Wow, juicy! I promise not to tell anyone about it");
-                    base.deferred.resolve();
-                });
-            }).fail(function() {
-                instance.output.write("OK, nevermind, many next time");
-                base.deferred.resolve();
-            });
-        });
-        return base.deferred.promise();
     };
     // --------------------------------------------------------------------------
     return base;
